@@ -63,3 +63,14 @@ export const getNarrative = createServerFn({ method: "POST" })
       return { mode: "stat" };
     }
   });
+
+export const getNews = createServerFn({ method: "POST" })
+  .validator((input: { refresh: boolean }) => input)
+  .handler(async (): Promise<{ ok: true; articles: import("./news.server.ts").NbaNewsItem[] } | { ok: false; articles: [] }> => {
+    try {
+      const { loadNews } = await import("./news.server.ts");
+      return { ok: true, articles: await loadNews() };
+    } catch {
+      return { ok: false, articles: [] };
+    }
+  });
