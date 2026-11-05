@@ -65,12 +65,18 @@ export const getNarrative = createServerFn({ method: "POST" })
   });
 
 export const getNews = createServerFn({ method: "POST" })
-  .validator((input: { refresh: boolean }) => input)
-  .handler(async (): Promise<{ ok: true; articles: import("./news.server.ts").NbaNewsItem[] } | { ok: false; articles: [] }> => {
+  .validator((input: { refresh: boolean; lang: Lang }) => {
+    if (!input || typeof input.refresh !== "boolean" || !asLang(input.lang)) throw new Error("bad news request");
+    return { refresh: input.refresh, lang: input.lang };
+  })
+  .handler(async ({ data }): Promise<
+    | { ok: true; articles: import("./news.server.ts").NbaNewsItem[]; translation: import("./news.server.ts").NewsTranslation }
+    | { ok: false; articles: []; translation: "unavailable" }
+  > => {
     try {
       const { loadNews } = await import("./news.server.ts");
-      return { ok: true, articles: await loadNews() };
+      return { ok: true, ...(await loadNews(data.lang, data.refresh)) };
     } catch {
-      return { ok: false, articles: [] };
+      return { ok: false, articles: [], translation: "unavailable" };
     }
   });
