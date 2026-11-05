@@ -42,6 +42,11 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const groups = cup?.groups.filter((group) => group.conference === conference) ?? [];
   const games = cup?.games.filter((item) => item.stage === "group" && item.conference === conference) ?? [];
   const runnersUp = groups.map((group) => group.teams[1]).filter((team): team is CupTeamStanding => Boolean(team && team.played > 0));
+  const groupWinners = groups.map((group) => group.teams[0]).filter((team): team is CupTeamStanding => Boolean(team && team.played > 0));
+  const rankedWinners = [...groupWinners].sort(compareCupTeams);
+  const projectedQuarterfinals: CupPair[] = rankedWinners.length === 3 && wildcard
+    ? [{ left: rankedWinners[0], right: wildcard }, { left: rankedWinners[1], right: rankedWinners[2] }]
+    : [];
   const wildcard = [...runnersUp].sort((a, b) => b.wins - a.wins || b.pointDiff - a.pointDiff || b.pointsFor - a.pointsFor)[0];
   const schedule = games.filter((item) => item.game.status === "pre" || item.game.status === "in").slice(0, 5);
   const recent = games.filter((item) => item.game.status === "post").slice(-5).reverse();
@@ -76,7 +81,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
               {groups.map((group) => <Qualifier key={group.name} label={copy.leader + " · " + group.name} team={group.teams[0]?.played ? group.teams[0] : undefined} />)}
               <Qualifier label={copy.wildCard} team={wildcard} />
             </div>
-          </section><Knockout copy={copy} games={cup.games.filter((item) => item.stage !== "group")} conference={conference} locale={locale} />
+          </section><Knockout copy={copy} games={cup.games.filter((item) => item.stage !== "group")} groups={cup.groups} conference={conference} locale={locale} projectedQuarterfinals={projectedQuarterfinals} />
         </div>}
         {cup && <section className="mt-5 rounded-card border border-line bg-surface p-4 sm:p-5"><h2 className="font-display text-2xl">{copy.schedule}</h2><p className="mt-1 text-xs text-faint">{schedule.length ? copy.upcoming : copy.recent}</p>
           {shownGames.length ? <ul className="mt-3 grid gap-2 sm:grid-cols-2">{shownGames.map(({ game, group }) => <li key={game.id} className="flex items-center gap-2 rounded-2xl border border-line bg-bg px-3 py-3">
@@ -109,25 +114,49 @@ function Qualifier({ label, team }: { label: string; team?: CupTeamStanding }) {
       {team && <span className="text-xs text-faint">{team.wins}–{team.losses} · {team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</span>}</span>
   </div>;
 }
-function Knockout({ copy, games, conference, locale }: {
-  copy: typeof COPY[Lang]; games: CupGame[]; conference: "east" | "west"; locale: string;
+type CupPair = { left?: CupTeamStanding; right?: CupTeamStanding };
+
+function compareCupTeams(a: CupTeamStanding, b: CupTeamStanding): number {
+  return b.wins - a.wins || b.pointDiff - a.pointDiff || b.pointsFor - a.pointsFor || a.name.localeCompare(b.name);
+}
+
+function gameWinner(item: CupGame, groups: CupGroup[]): CupTeamStanding | undefined {
+  const game = item.game;
+  if (game.status !== "post" || game.home.score == null || game.away.score == null) return undefined;
+  const winnerId = game.home.winner || game.home.score > game.away.score ? game.home.id : game.away.id;
+  return groups.flatMap((group) => group.teams).find((team) => team.id === winnerId);
+}
+
+function Knockout({ copy, games, groups, conference, locale, projectedQuarterfinals }: {
+  copy: typeof COPY[Lang]; games: CupGame[]; groups: CupGroup[]; conference: "east" | "west";
+  locale: string; projectedQuarterfinals: CupPair[];
 }) {
   const quarterfinals = games.filter((item) => item.stage === "quarterfinal" && item.conference === conference);
   const semifinals = games.filter((item) => item.stage === "semifinal" && item.conference === conference);
   const finals = games.filter((item) => item.stage === "final");
+  const qfWinners = quarterfinals.map((item) => gameWinner(item, groups)).filter((team): team is CupTeamStanding => Boolean(team));
+  const semiProjection: CupPair[] = qfWinners.length ? [{ left: qfWinners[0], right: qfWinners[1] }] : [];
+  const semiWinners = games.map((item) => ({
+    conference: item.conference,
+    winner: item.stage === "semifinal" ? gameWinner(item, groups) : undefined,
+  })).filter((item): item is { conference: "east" | "west" | "both"; winner: CupTeamStanding } => Boolean(item.winner));
+  const eastWinner = semiWinners.find((item) => item.conference === "east")?.winner;
+  const westWinner = semiWinners.find((item) => item.conference === "west")?.winner;
+  const finalProjection: CupPair[] = eastWinner || westWinner ? [{ left: eastWinner, right: westWinner }] : [];
+
   return <section className="rounded-card border border-line bg-surface p-4 sm:p-5">
     <h2 className="font-display text-2xl">{copy.knockout}</h2>
     <div className="mt-3 grid gap-3">
-      <RoundCard title={copy.quarterfinals} games={quarterfinals} slots={2} locale={locale} undecided={copy.undecided} tone="cyan" />
-      <RoundCard title={copy.semifinals} games={semifinals} slots={1} locale={locale} undecided={copy.undecided} tone="violet" />
-      <RoundCard title={copy.final} games={finals} slots={1} locale={locale} undecided={copy.undecided} tone="fuchsia" trophy />
+      <RoundCard title={copy.quarterfinals} games={quarterfinals} projected={projectedQuarterfinals} projectionLabel={copy.projection} slots={2} locale={locale} undecided={copy.undecided} tone="cyan" />
+      <RoundCard title={copy.semifinals} games={semifinals} projected={semiProjection} projectionLabel={copy.projection} slots={1} locale={locale} undecided={copy.undecided} tone="violet" />
+      <RoundCard title={copy.final} games={finals} projected={finalProjection} projectionLabel={copy.projection} slots={1} locale={locale} undecided={copy.undecided} tone="fuchsia" trophy />
     </div>
   </section>;
 }
 
-function RoundCard({ title, games, slots, locale, undecided, tone, trophy = false }: {
-  title: string; games: CupGame[]; slots: number; locale: string; undecided: string;
-  tone: "cyan" | "violet" | "fuchsia"; trophy?: boolean;
+function RoundCard({ title, games, projected, projectionLabel, slots, locale, undecided, tone, trophy = false }: {
+  title: string; games: CupGame[]; projected: CupPair[]; projectionLabel: string; slots: number;
+  locale: string; undecided: string; tone: "cyan" | "violet" | "fuchsia"; trophy?: boolean;
 }) {
   const color = tone === "cyan" ? "border-cyan-400/30 bg-cyan-400/[0.035] text-cyan-100"
     : tone === "violet" ? "border-violet-400/30 bg-violet-400/[0.035] text-violet-100"
@@ -135,17 +164,21 @@ function RoundCard({ title, games, slots, locale, undecided, tone, trophy = fals
   const dates = Array.from(new Set(games.map((item) => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(new Date(item.game.tipoff)))));
   const dateLabel = dates.length ? dates.join(" · ") : undecided;
   const shown = games.slice(0, slots);
+  const useProjection = shown.length === 0 && projected.length > 0;
+  const emptySlots = Math.max(0, slots - (shown.length || (useProjection ? projected.length : 0)));
   return <section className={"rounded-2xl border p-3 " + color}>
     <div className="flex items-center gap-2">
       {trophy && <Trophy aria-hidden="true" className="size-5 shrink-0" />}
       <h3 className="min-w-0 flex-1 font-display text-lg">{title}</h3>
       <span className="text-xs opacity-75">{dateLabel}</span>
     </div>
+    {useProjection && <p className="mt-2 text-[10px] uppercase tracking-wider opacity-70">{projectionLabel}</p>}
     <div className="mt-2 grid gap-2 sm:grid-cols-2">
       {shown.map((item) => <CupMatch key={item.game.id} item={item} />)}
-      {Array.from({ length: Math.max(0, slots - shown.length) }, (_, index) =>
-        <SlotMatch key={"tbd-" + index} undecided={undecided} />
+      {useProjection && projected.slice(0, slots).map((pair, index) =>
+        <ProjectedMatch key={"projected-" + index} pair={pair} undecided={undecided} />
       )}
+      {Array.from({ length: emptySlots }, (_, index) => <SlotMatch key={"tbd-" + index} undecided={undecided} />)}
     </div>
   </section>;
 }
@@ -160,6 +193,21 @@ function CupMatch({ item }: { item: CupGame }) {
     <span className="min-w-0 flex-1 truncate text-right text-xs">{game.home.short}</span>
     <TeamMark abbr={game.home.abbr} color={UNKNOWN_COLOR} sources={[game.home.logo]} />
   </article>;
+}
+
+function ProjectedMatch({ pair, undecided }: { pair: CupPair; undecided: string }) {
+  return <article className="flex min-w-0 items-center gap-2 rounded-xl border border-line bg-bg px-3 py-3">
+    <ProjectedTeam team={pair.left} undecided={undecided} />
+    <span dir="ltr" className="shrink-0 font-display text-lg">vs</span>
+    <ProjectedTeam team={pair.right} undecided={undecided} />
+  </article>;
+}
+
+function ProjectedTeam({ team, undecided }: { team?: CupTeamStanding; undecided: string }) {
+  return <span className="flex min-w-0 flex-1 items-center gap-2">
+    {team ? <><TeamMark abbr={team.abbr} color={UNKNOWN_COLOR} sources={[team.logo]} /><span className="min-w-0 truncate text-xs">{team.name}</span></>
+      : <span className="truncate text-xs text-faint">{undecided}</span>}
+  </span>;
 }
 
 function SlotMatch({ undecided }: { undecided: string }) {
