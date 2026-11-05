@@ -100,3 +100,14 @@ export const getPlayoffScores = createServerFn({ method: "POST" })
       return { ok: false, error: "feed" };
     }
   });
+
+export const getCup = createServerFn({ method: "POST" })
+  .validator((input: { confirm: true }) => input)
+  .handler(async (): Promise<{ ok: true; cup: CupData } | { ok: false; error: "feed" }> => {
+    try {
+      const { loadCup } = await import("./cup.server.ts");
+      return { ok: true, cup: await loadCup() };
+    } catch {
+      return { ok: false, error: "feed" };
+    }
+  });
