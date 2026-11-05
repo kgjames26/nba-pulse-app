@@ -82,7 +82,11 @@ async function translateArticles(articles: NbaNewsItem[], lang: Lang): Promise<N
   const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
   if (!apiKey) return { articles, translation: "unavailable" };
 
-  const texts = articles.flatMap((article) => [article.headline, article.description]);
+  const fields = articles.flatMap((article, articleIndex) => [
+    { articleIndex, field: "headline" as const, value: article.headline },
+    ...(article.description ? [{ articleIndex, field: "description" as const, value: article.description }] : []),
+  ]);
+  const texts = fields.map((field) => field.value);
   if (texts.length === 0) return { articles, translation: "google" };
 
   const controller = new AbortController();
@@ -102,24 +106,33 @@ async function translateArticles(articles: NbaNewsItem[], lang: Lang): Promise<N
     const payload = record(await response.json());
     const data = record(payload?.data);
     const translations = Array.isArray(data?.translations) ? data.translations : [];
-    if (translations.length !== texts.length) return { articles, translation: "unavailable" };
+    if (translations.length !== fields.length) return { articles, translation: "unavailable" };
 
-    const translatedText = translations.map((value) => text(record(value)?.translatedText));
+    const translatedText = translations.map((value) => decodeGoogleText(text(record(value)?.translatedText)));
     if (translatedText.some((value) => !value)) return { articles, translation: "unavailable" };
 
-    return {
-      articles: articles.map((article, index) => ({
-        ...article,
-        headline: translatedText[index * 2] ?? article.headline,
-        description: translatedText[index * 2 + 1] ?? article.description,
-      })),
-      translation: "google",
-    };
+    const translatedArticles = articles.map((article) => ({ ...article }));
+    fields.forEach(({ articleIndex, field }, index) => {
+      const article = translatedArticles[articleIndex];
+      const translated = translatedText[index];
+      if (article && translated) article[field] = translated;
+    });
+    return { articles: translatedArticles, translation: "google" };
   } catch {
     return { articles, translation: "unavailable" };
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function decodeGoogleText(value: string): string {
+  return value
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&#x27;", "'");
 }
 
 export async function loadNews(lang: Lang, refresh = false): Promise<NbaNewsResponse> {
