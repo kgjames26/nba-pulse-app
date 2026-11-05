@@ -55,7 +55,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   return <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
     <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4 sm:px-4">
       <header className="flex flex-nowrap items-center justify-between gap-2 border-b border-line pb-4">
-        <div className="min-w-0"><p className="text-xs uppercase tracking-widest text-accent">{copy.season} {cup?.season ?? seasonYear + "-" + String(seasonYear + 1).slice(-2)}</p><h1 className="truncate font-display text-3xl leading-none sm:text-4xl">{copy.title}</h1></div>
+        <div className="min-w-0"><h1 className="truncate font-display text-3xl leading-none sm:text-4xl">{copy.title}</h1></div>
         <SectionNav active="cup" lang={lang} onScore={onScore} onStandings={onStandings} onNews={onNews} onPlayoff={onPlayoff} onCup={() => undefined} onSettings={onSettings} />
       </header>
       {!canSee ? <div className="mx-auto mt-8 max-w-xl rounded-card border border-line bg-surface p-5">
