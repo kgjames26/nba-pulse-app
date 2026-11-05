@@ -7,7 +7,7 @@ import { localeFor, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { percentPair } from "@/lib/nba/odds";
 import { presentGame, resultsAreHidden } from "@/lib/nba/present";
 import { sourceHost } from "@/lib/nba/tactic";
-import type { GameCard, GameDetail, PlayerLine, Tactic } from "@/lib/nba/types";
+import type { Clip, GameCard, GameDetail, PlayerLine, Tactic } from "@/lib/nba/types";
 import { PrimaryButton, TeamMark } from "./ui";
 
 const BOX_EMPTY: Record<Lang, string> = {
@@ -77,7 +77,6 @@ export function GameView({
               show={show}
               lang={lang}
               locale={locale}
-              attendance={show ? detail.attendance : null}
             />
             {hidden && (
               <div className="mt-4">
@@ -123,13 +122,11 @@ function Result({
   show,
   lang,
   locale,
-  attendance,
 }: {
   game: GameCard;
   show: boolean;
   lang: Lang;
   locale: string;
-  attendance: number | null;
 }) {
   const view = presentGame(game, show);
   return (
@@ -139,11 +136,7 @@ function Result({
         <ScoreRow side={view.away} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} />
         <ScoreRow side={view.home} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} />
       </div>
-      <p className="mt-4 text-sm text-muted">
-        {game.status === "pre" ? formatTip(game.tipoff, locale) : formatTip(game.tipoff, locale)}
-        {game.venue ? ` · ${game.venue}` : ""}
-      </p>
-      {attendance != null && <p className="mt-1 text-sm text-faint">{t(lang, "attendanceLabel", { n: attendance })}</p>}
+      <p className="mt-4 text-sm text-muted">{formatTip(game.tipoff, locale)}</p>
     </section>
   );
 }
@@ -198,6 +191,15 @@ function Lines({ game, lang }: { game: GameCard; lang: Lang }) {
   );
 }
 
+const PLAYER_GROUP_LABELS: Record<Lang, { starters: string; bench: string }> = {
+  fr: { starters: "5 de départ", bench: "Banc" },
+  en: { starters: "Starting five", bench: "Bench" },
+  es: { starters: "Quinteto inicial", bench: "Banquillo" },
+  tr: { starters: "İlk beş", bench: "Yedekler" },
+  ar: { starters: "التشكيلة الأساسية", bench: "البدلاء" },
+  zh: { starters: "首发五人", bench: "替补" },
+};
+
 function Box({
   detailTeams,
   game,
@@ -223,6 +225,8 @@ function Box({
       {order.map((side) => {
         const group = detailTeams.find((item) => item.teamId === side.id);
         if (!group) return null;
+        const starters = group.players.filter((player) => player.starter);
+        const bench = group.players.filter((player) => !player.starter);
         const top = group.players.reduce((best, player) => {
           const pts = Number(player.pts);
           if (!Number.isFinite(pts)) return best;
@@ -240,29 +244,34 @@ function Box({
                 </tr>
               </thead>
               <tbody>
-                {group.players.map((player) => {
-                  const hot = !player.dnp && Number(player.pts) === top && top >= 0;
-                  return (
-                    <tr key={player.id || player.name} className="border-t border-line">
-                      <th className={`sticky start-0 bg-bg px-2 py-2 text-start font-medium ${hot ? "text-accent" : ""}`}>
-                        <span className="block text-fg">{player.name}</span>
-                        <span className="block text-xs font-normal text-faint">
-                          {player.pos}
-                          {player.dnp ? ` · ${t(lang, "dnp")}${player.reason ? ` · ${player.reason}` : ""}` : ""}
-                        </span>
-                      </th>
-                      {[player.min, player.pts, player.reb, player.ast, player.stl, player.blk, player.fg, player.tp, player.ft, player.pm].map((value, index) => (
-                        <td key={index} className="px-2 py-2">{player.dnp ? "—" : value}</td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                {starters.length > 0 && <tr><th colSpan={11} className="bg-raised/60 px-2 py-2 text-start text-[10px] font-semibold uppercase tracking-widest text-accent">{PLAYER_GROUP_LABELS[lang].starters}</th></tr>}
+                {starters.map((player) => <PlayerRow key={player.id || player.name} player={player} top={top} lang={lang} starter />)}
+                {bench.length > 0 && starters.length > 0 && <tr><th colSpan={11} className="border-t-2 border-line bg-bg px-2 py-2 text-start text-[10px] font-semibold uppercase tracking-widest text-faint">{PLAYER_GROUP_LABELS[lang].bench}</th></tr>}
+                {bench.map((player) => <PlayerRow key={player.id || player.name} player={player} top={top} lang={lang} />)}
               </tbody>
             </table>
           </div>
         );
       })}
     </section>
+  );
+}
+
+function PlayerRow({ player, top, lang, starter = false }: { player: PlayerLine; top: number; lang: Lang; starter?: boolean }) {
+  const hot = !player.dnp && Number(player.pts) === top && top >= 0;
+  return (
+    <tr className={starter ? "border-t border-line bg-accent/[0.035]" : "border-t border-line"}>
+      <th className={`sticky start-0 px-2 py-2 text-start font-medium ${starter ? "border-s-2 border-accent bg-surface" : "bg-bg"} ${hot ? "text-accent" : ""}`}>
+        <span className="block text-fg">{player.name}</span>
+        <span className="block text-xs font-normal text-faint">
+          {player.pos}
+          {player.dnp ? ` · ${t(lang, "dnp")}${player.reason ? ` · ${player.reason}` : ""}` : ""}
+        </span>
+      </th>
+      {[player.min, player.pts, player.reb, player.ast, player.stl, player.blk, player.fg, player.tp, player.ft, player.pm].map((value, index) => (
+        <td key={index} className="px-2 py-2">{player.dnp ? "—" : value}</td>
+      ))}
+    </tr>
   );
 }
 
@@ -298,21 +307,21 @@ function Recap({
   );
 }
 
-function Clips({ clips, lang }: { clips: { id: string; title: string; thumbnail: string; url: string; duration: number; player: string | null; kind: "play" | "package" }[]; lang: Lang }) {
-  const heading = {
-    fr: "Vidéos YouTube",
-    en: "YouTube videos",
-    es: "Vídeos de YouTube",
-    tr: "YouTube videoları",
-    ar: "فيديوهات YouTube",
-    zh: "YouTube 视频",
-  }[lang];
+function Clips({ clips, lang }: { clips: Clip[]; lang: Lang }) {
+  const labels: Record<Lang, { highlights: string; recap: string }> = {
+    fr: { highlights: "Highlights du match", recap: "Résumé complet" },
+    en: { highlights: "Game Highlights", recap: "Full game recap" },
+    es: { highlights: "Highlights del partido", recap: "Resumen completo" },
+    tr: { highlights: "Maç özetleri", recap: "Tam maç özeti" },
+    ar: { highlights: "أبرز لقطات المباراة", recap: "ملخص كامل للمباراة" },
+    zh: { highlights: "比赛精彩集锦", recap: "完整比赛回顾" },
+  };
   return (
     <section className="mt-6">
-      <h2 className="font-display text-2xl">{heading}</h2>
+      <h2 className="font-display text-2xl">Highlights</h2>
       {clips.length === 0 && <p className="mt-3 text-sm text-muted">{t(lang, "clipsNone")}</p>}
       <ul className="mt-4 flex flex-col gap-3">
-        {clips.map((clip) => (
+        {clips.map((clip, index) => (
           <li key={clip.id}>
             <a href={clip.url} target="_blank" rel="noreferrer" className="flex gap-3 rounded-card border border-line bg-surface p-3">
               {clip.thumbnail ? (
@@ -320,12 +329,9 @@ function Clips({ clips, lang }: { clips: { id: string; title: string; thumbnail:
               ) : (
                 <span className="grid h-20 w-32 shrink-0 place-items-center rounded-xl bg-raised text-xs text-faint">{t(lang, "watch")}</span>
               )}
-              <span className="min-w-0">
-                <span className="block text-sm text-fg">{clip.title}</span>
-                <span className="mt-1 block text-xs text-faint">
-                  {clip.kind === "package" ? t(lang, "clipsPackage") : clip.player}
-                  {clip.duration > 0 ? ` · ${formatDuration(clip.duration)}` : ""}
-                </span>
+              <span className="min-w-0 self-center">
+                <span className="block text-sm font-medium text-fg">{labels[lang][clip.category === "recap" || index === 1 ? "recap" : "highlights"]}</span>
+                {clip.duration > 0 && <span className="mt-1 block text-xs text-faint">{formatDuration(clip.duration)}</span>}
               </span>
             </a>
           </li>
