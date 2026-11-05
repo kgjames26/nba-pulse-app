@@ -44,10 +44,10 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const runnersUp = groups.map((group) => group.teams[1]).filter((team): team is CupTeamStanding => Boolean(team && team.played > 0));
   const groupWinners = groups.map((group) => group.teams[0]).filter((team): team is CupTeamStanding => Boolean(team && team.played > 0));
   const rankedWinners = [...groupWinners].sort(compareCupTeams);
+  const wildcard = [...runnersUp].sort((a, b) => b.wins - a.wins || b.pointDiff - a.pointDiff || b.pointsFor - a.pointsFor)[0];
   const projectedQuarterfinals: CupPair[] = rankedWinners.length === 3 && wildcard
     ? [{ left: rankedWinners[0], right: wildcard }, { left: rankedWinners[1], right: rankedWinners[2] }]
     : [];
-  const wildcard = [...runnersUp].sort((a, b) => b.wins - a.wins || b.pointDiff - a.pointDiff || b.pointsFor - a.pointsFor)[0];
   const schedule = games.filter((item) => item.game.status === "pre" || item.game.status === "in").slice(0, 5);
   const recent = games.filter((item) => item.game.status === "post").slice(-5).reverse();
   const shownGames = schedule.length ? schedule : recent;
@@ -69,7 +69,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
           <button key={key} type="button" onClick={() => setConference(key)} aria-pressed={conference === key}
             className={conference === key ? "min-h-11 flex-1 rounded-full bg-accent text-sm text-accent-ink" : "min-h-11 flex-1 rounded-full border border-line text-sm"}>{t(lang, key)}</button>)}</div>
         <section className="mt-5">
-          <div className="mb-3 flex items-end justify-between gap-2"><div><h2 className="font-display text-2xl">{copy.groupPlay}</h2><p className="text-xs text-faint">{copy.projection} · {cup?.season ?? "2026–27"}</p></div>
+          <div className="mb-3 flex items-end justify-between gap-2"><div><h2 className="font-display text-2xl">{copy.groupPlay}</h2><p className="text-xs text-faint">{copy.projection} · {cup?.season ?? seasonYear + "-" + String(seasonYear + 1).slice(-2)}</p></div>
             {cup && <p className="text-xs text-faint">{copy.updated} {formatTip(cup.fetchedAt, locale)}</p>}</div>
           {query.isLoading && <div className="h-36 animate-pulse rounded-card bg-surface" />}
           {query.data && !query.data.ok && <div className="rounded-card border border-line bg-surface p-4"><p>{t(lang, "loadError")}</p><button type="button" onClick={() => void query.refetch()} className="mt-3 min-h-10 rounded-full bg-accent px-4 text-sm text-accent-ink">{t(lang, "retry")}</button></div>}
