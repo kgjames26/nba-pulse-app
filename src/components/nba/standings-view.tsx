@@ -6,6 +6,7 @@ import { localeFor, phaseLabel, t, type Lang } from "@/lib/nba/i18n";
 import type { StandingRow } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
+import { SectionNav } from "./section-nav";
 
 export function StandingsView({
   lang,
@@ -13,14 +14,18 @@ export function StandingsView({
   favoriteIds,
   canSee,
   onUnlock,
-  onClose,
+  onHome,
+  onNews,
+  onSettings,
 }: {
   lang: Lang;
   open: boolean;
   favoriteIds: string[];
   canSee: boolean;
   onUnlock: () => void;
-  onClose: () => void;
+  onHome: () => void;
+  onNews: () => void;
+  onSettings: () => void;
 }) {
   const [side, setSide] = useState<"east" | "west">("east");
   const query = useQuery({
@@ -36,12 +41,17 @@ export function StandingsView({
   return (
     <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-xl px-4 pb-12 pt-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-4xl">{t(lang, "standings")}</h2>
-          <button type="button" onClick={onClose} className="min-h-11 rounded-full border border-line px-4 text-sm">
-            {t(lang, "close")}
-          </button>
-        </div>
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="font-display text-4xl">{t(lang, "standings")}</h1>
+          <SectionNav
+            active="standings"
+            lang={lang}
+            onScore={onHome}
+            onStandings={() => undefined}
+            onNews={onNews}
+            onSettings={onSettings}
+          />
+        </header>
         {!canSee && (
           <div className="mt-8 rounded-card border border-line bg-surface p-5">
             <p className="font-display text-3xl">{t(lang, "standLockTitle")}</p>
