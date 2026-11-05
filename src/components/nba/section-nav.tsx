@@ -1,15 +1,15 @@
 import { Settings } from "lucide-react";
 import { t, type Lang } from "@/lib/nba/i18n";
 
-type Section = "score" | "standings" | "news" | "playoff";
+type Section = "score" | "standings" | "news" | "playoff" | "cup";
 
 const LABELS: Record<Lang, Record<Section, string>> = {
-  fr: { score: "Scores", standings: "Classements", news: "Actualités", playoff: "Playoff" },
-  en: { score: "Scores", standings: "Standings", news: "News", playoff: "Playoffs" },
-  es: { score: "Resultados", standings: "Clasificación", news: "Noticias", playoff: "Playoff" },
-  tr: { score: "Skorlar", standings: "Sıralama", news: "Haberler", playoff: "Playoff" },
-  ar: { score: "النتائج", standings: "الترتيب", news: "الأخبار", playoff: "الأدوار الإقصائية" },
-  zh: { score: "赛程", standings: "排名", news: "新闻", playoff: "季后赛" },
+  fr: { score: "Scores", standings: "Classements", news: "Actualités", playoff: "Playoff", cup: "Cup" },
+  en: { score: "Scores", standings: "Standings", news: "News", playoff: "Playoffs", cup: "Cup" },
+  es: { score: "Resultados", standings: "Clasificación", news: "Noticias", playoff: "Playoff", cup: "Cup" },
+  tr: { score: "Skorlar", standings: "Sıralama", news: "Haberler", playoff: "Playoff", cup: "Kupa" },
+  ar: { score: "النتائج", standings: "الترتيب", news: "الأخبار", playoff: "الأدوار الإقصائية", cup: "الكأس" },
+  zh: { score: "赛程", standings: "排名", news: "新闻", playoff: "季后赛", cup: "杯赛" },
 };
 
 export function SectionNav({
@@ -19,6 +19,7 @@ export function SectionNav({
   onStandings,
   onNews,
   onPlayoff,
+  onCup,
   onSettings,
 }: {
   active: Section;
@@ -27,6 +28,7 @@ export function SectionNav({
   onStandings: () => void;
   onNews: () => void;
   onPlayoff: () => void;
+  onCup: () => void;
   onSettings: () => void;
 }) {
   const actions: { key: Section; onClick: () => void }[] = [
@@ -34,6 +36,7 @@ export function SectionNav({
     { key: "standings", onClick: onStandings },
     { key: "news", onClick: onNews },
     { key: "playoff", onClick: onPlayoff },
+    { key: "cup", onClick: onCup },
   ];
 
   return (
