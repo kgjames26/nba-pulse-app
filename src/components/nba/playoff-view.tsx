@@ -155,7 +155,7 @@ export function PlayoffView({
   const teams: [number, number][] = [[1, 8], [4, 5], [3, 6], [2, 7]];
 
   return (
-    <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
+    <div className="fixed inset-0 z-30 overflow-x-hidden overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
         <header className="border-b border-line pb-4">
           <div className="flex items-center justify-between gap-3">
