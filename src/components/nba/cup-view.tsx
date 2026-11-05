@@ -53,7 +53,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const shownGames = schedule.length ? schedule : recent;
 
   return <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
-    <div className="mx-auto min-h-screen max-w-6xl px-4 pb-12 pt-4">
+    <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
       <header className="border-b border-line pb-4">
         <div className="flex items-center justify-between gap-3">
           <p className="font-display text-2xl tracking-wide">
