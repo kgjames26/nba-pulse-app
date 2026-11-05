@@ -88,7 +88,7 @@ export function NewsView({
 
   return (
     <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
-      <div className="mx-auto min-h-screen max-w-3xl px-3 pb-12 pt-4 sm:px-4">
+      <div className="mx-auto min-h-screen max-w-3xl px-4 pb-12 pt-4">
         <header className="border-b border-line pb-4">
           <p className="font-display text-2xl tracking-wide">
           NBA <span className="text-accent">PULSE</span>
