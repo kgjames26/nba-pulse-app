@@ -26,6 +26,7 @@ export function StandingsView({
   onHome,
   onNews,
   onPlayoff,
+  onCup,
   onSettings,
 }: {
   lang: Lang;
@@ -36,6 +37,7 @@ export function StandingsView({
   onHome: () => void;
   onNews: () => void;
   onPlayoff: () => void;
+  onCup: () => void;
   onSettings: () => void;
 }) {
   const [side, setSide] = useState<"east" | "west">("east");
@@ -61,6 +63,7 @@ export function StandingsView({
             onStandings={() => undefined}
             onNews={onNews}
             onPlayoff={onPlayoff}
+            onCup={onCup}
             onSettings={onSettings}
           />
         </header>
