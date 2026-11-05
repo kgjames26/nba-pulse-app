@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { isYmd } from "./dates.ts";
 import type { Lang } from "./i18n.ts";
-import type { GameDetail, Narrative, PlayoffSeriesScore, Slate, Standings } from "./types.ts";
+import type { CupData, GameDetail, Narrative, PlayoffSeriesScore, Slate, Standings } from "./types.ts";
 
 const LANGS = new Set<Lang>(["fr", "en", "es", "tr", "ar", "zh"]);
 
@@ -102,11 +102,14 @@ export const getPlayoffScores = createServerFn({ method: "POST" })
   });
 
 export const getCup = createServerFn({ method: "POST" })
-  .validator((input: { confirm: true }) => input)
-  .handler(async (): Promise<{ ok: true; cup: CupData } | { ok: false; error: "feed" }> => {
+  .validator((input: { seasonYear: number }) => {
+    if (!input || !Number.isInteger(input.seasonYear) || input.seasonYear < 2020 || input.seasonYear > 2100) throw new Error("bad season");
+    return { seasonYear: input.seasonYear };
+  })
+  .handler(async ({ data }): Promise<{ ok: true; cup: CupData } | { ok: false; error: "feed" }> => {
     try {
       const { loadCup } = await import("./cup.server.ts");
-      return { ok: true, cup: await loadCup() };
+      return { ok: true, cup: await loadCup(data.seasonYear) };
     } catch {
       return { ok: false, error: "feed" };
     }
