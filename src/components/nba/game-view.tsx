@@ -9,6 +9,7 @@ import { presentGame, resultsAreHidden } from "@/lib/nba/present";
 import { sourceHost } from "@/lib/nba/tactic";
 import type { Clip, GameCard, GameDetail, PlayerLine, Tactic } from "@/lib/nba/types";
 import { PrimaryButton, TeamMark } from "./ui";
+import { SettingsButton } from "./section-nav";
 
 const BOX_EMPTY: Record<Lang, string> = {
   fr: "Le flux n'a pas fourni de feuille de stats.",
@@ -25,12 +26,14 @@ export function GameView({
   show,
   onBack,
   onReveal,
+  onSettings,
 }: {
   id: string;
   lang: Lang;
   show: boolean;
   onBack: () => void;
   onReveal: () => void;
+  onSettings: () => void;
 }) {
   const locale = localeFor(lang);
   const query = useQuery({
@@ -59,6 +62,7 @@ export function GameView({
         <p className="font-display text-2xl tracking-wide">
           NBA <span className="text-accent">PULSE</span>
         </p>
+        <SettingsButton lang={lang} onClick={onSettings} />
       </header>
       <div className="px-4 pb-16 lg:px-6">
         {query.isLoading && <div className="h-40 animate-pulse rounded-card bg-surface" />}
