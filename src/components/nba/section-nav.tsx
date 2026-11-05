@@ -46,13 +46,27 @@ export function PageHeader({
         </p>
         <SettingsButton lang={lang} onClick={onSettings} />
       </div>
-      <div className="mt-3 min-w-0">
-        <h1 className="truncate font-display text-4xl font-extrabold leading-none text-accent sm:text-5xl">
+      <div className="mt-3 flex min-w-0 items-center gap-2">
+        <h1 className="shrink-0 font-display text-3xl font-extrabold leading-none text-accent sm:text-4xl">
           {title ?? LABELS[lang][active]}
         </h1>
-        {subtitle && <p className="mt-1 truncate text-xs uppercase tracking-widest text-muted">{subtitle}</p>}
+        <SectionNav
+          active={active}
+          lang={lang}
+          onScore={onScore}
+          onStandings={onStandings}
+          onNews={onNews}
+          onPlayoff={onPlayoff}
+          onCup={onCup}
+        />
       </div>
-      <SectionNav
+      {subtitle && <p className="mt-1 truncate text-xs uppercase tracking-widest text-muted">{subtitle}</p>}
+      {children && <div className="mt-3">{children}</div>}
+    </header>
+  );
+}
+
+function SectionNav
         active={active}
         lang={lang}
         onScore={onScore}
@@ -92,7 +106,7 @@ function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="mt-4 grid w-full grid-cols-5 gap-0.5 sm:gap-1">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="grid min-w-0 flex-1 grid-cols-5 gap-0.5 sm:gap-1">
       {actions.map(({ key, onClick }) => (
         <button
           key={key}
@@ -101,7 +115,7 @@ function SectionNav({
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
           className={key === active
-            ? "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border-2 border-accent bg-accent px-0.5 py-1 text-center text-[9px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:px-1 sm:text-xs md:text-sm"
+            ? "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border-2 border-accent bg-accent px-0.5 py-1 text-center text-[8px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:px-1 sm:text-[10px] md:text-xs"
             : "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border border-line px-0.5 py-1 text-center text-[9px] leading-tight transition-colors hover:bg-surface sm:px-1 sm:text-xs md:text-sm"}
         >
           {LABELS[lang][key]}
@@ -118,9 +132,9 @@ export function SettingsButton({ lang, onClick }: { lang: Lang; onClick: () => v
       onClick={onClick}
       aria-label={t(lang, "settings")}
       title={t(lang, "settings")}
-      className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-accent bg-accent text-accent-ink shadow-lg shadow-accent/40 transition-transform hover:scale-105"
+      className="grid size-6 shrink-0 place-items-center rounded-full border border-accent bg-accent text-accent-ink shadow-sm shadow-accent/40"
     >
-      <Settings aria-hidden="true" className="size-6 stroke-[2.5]" />
+      <Settings aria-hidden="true" className="size-4 stroke-[2.5]" />
     </button>
   );
 }
