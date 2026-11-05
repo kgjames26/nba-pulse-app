@@ -40,9 +40,9 @@ export function StandingsView({
 
   return (
     <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
-      <div className="mx-auto min-h-screen max-w-xl px-4 pb-12 pt-4">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-4xl">{t(lang, "standings")}</h1>
+      <div className="mx-auto min-h-screen max-w-xl px-3 pb-12 pt-4 sm:px-4">
+        <header className="flex flex-nowrap items-center justify-between gap-2">
+          <h1 className="min-w-0 truncate font-display text-3xl sm:text-4xl">{t(lang, "standings")}</h1>
           <SectionNav
             active="standings"
             lang={lang}
