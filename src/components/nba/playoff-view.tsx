@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { formatTip } from "@/lib/nba/dates";
 import { getStandings } from "@/lib/nba/api";
-import { localeFor, t, type Lang } from "@/lib/nba/i18n";
+import { localeFor, phaseLabel, t, type Lang } from "@/lib/nba/i18n";
 import type { StandingRow, Standings } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
@@ -25,6 +25,9 @@ const COPY: Record<Lang, {
   playInEliminate: string;
   playInFinal: string;
   loading: string;
+  loserGame1: string;
+  winnerGame2: string;
+  tbd: string;
 }> = {
   fr: {
     title: "Playoff",
@@ -43,6 +46,9 @@ const COPY: Record<Lang, {
     playInEliminate: "Le perdant est éliminé",
     playInFinal: "Le vainqueur prend la 8e place",
     loading: "Classement en cours de chargement.",
+    loserGame1: "Perdant du match 1",
+    winnerGame2: "Vainqueur du match 2",
+    tbd: "À déterminer",
   },
   en: {
     title: "Playoffs",
@@ -61,6 +67,9 @@ const COPY: Record<Lang, {
     playInEliminate: "Loser is eliminated",
     playInFinal: "Winner takes seed 8",
     loading: "Loading standings.",
+    loserGame1: "Loser of game 1",
+    winnerGame2: "Winner of game 2",
+    tbd: "TBD",
   },
   es: {
     title: "Playoff",
@@ -79,6 +88,9 @@ const COPY: Record<Lang, {
     playInEliminate: "El perdedor queda eliminado",
     playInFinal: "El ganador obtiene el puesto 8",
     loading: "Cargando clasificación.",
+    loserGame1: "Perdedor del partido 1",
+    winnerGame2: "Ganador del partido 2",
+    tbd: "Por determinar",
   },
   tr: {
     title: "Playoff",
@@ -97,6 +109,9 @@ const COPY: Record<Lang, {
     playInEliminate: "Kaybeden elenir",
     playInFinal: "Kazanan 8. sırayı alır",
     loading: "Sıralama yükleniyor.",
+    loserGame1: "1. maçın kaybedeni",
+    winnerGame2: "2. maçın kazananı",
+    tbd: "Belirlenecek",
   },
   ar: {
     title: "الأدوار الإقصائية",
@@ -115,6 +130,9 @@ const COPY: Record<Lang, {
     playInEliminate: "الخاسر يخرج",
     playInFinal: "الفائز يحصل على المركز ٨",
     loading: "جارٍ تحميل الترتيب.",
+    loserGame1: "خاسر المباراة ١",
+    winnerGame2: "فائز المباراة ٢",
+    tbd: "يُحدد لاحقًا",
   },
   zh: {
     title: "季后赛",
@@ -133,6 +151,9 @@ const COPY: Record<Lang, {
     playInEliminate: "负者淘汰",
     playInFinal: "胜者获得第 8 名",
     loading: "正在加载排名。",
+    loserGame1: "第 1 场负者",
+    winnerGame2: "第 2 场胜者",
+    tbd: "待定",
   },
 };
 
@@ -197,7 +218,7 @@ export function PlayoffView({
           <>
             {table && (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-faint">
-                <p>{c.projection}{table.phase ? ` ${table.season} · ${table.phase}` : ` ${table.season}`}</p>
+                <p>{c.projection}{table.phase ? ` ${table.season} · ${phaseLabel(String(table.phase), lang)}` : ` ${table.season}`}</p>
                 <p>{t(lang, "updated", { time: formatTip(table.fetchedAt, locale) })}</p>
               </div>
             )}
@@ -246,7 +267,7 @@ export function PlayoffView({
                   <div dir="ltr" className="mt-4 grid gap-3 md:grid-cols-3">
                     <MatchCard label={`${c.game} 1`} pair={{ a: 7, b: 8 }} rows={rows} provisional={[7, 8]} note={c.playInAdvance} />
                     <MatchCard label={`${c.game} 2`} pair={{ a: 9, b: 10 }} rows={rows} provisional={[]} note={c.playInEliminate} />
-                    <SlotMatch label={`${c.game} 3`} left="Loser G1" right="Winner G2" winner={c.playInFinal} />
+                    <SlotMatch label={`${c.game} 3`} left={c.loserGame1} right={c.winnerGame2} winner={c.playInFinal} />
                   </div>
                 </section>
                 <section className="mt-5 rounded-card border border-line bg-surface p-4 sm:p-5">
@@ -319,7 +340,7 @@ function SeedTeam({ seed, row, provisional }: { seed: number | string; row: Stan
             <span className="block text-[10px] text-faint">{row.wins}–{row.losses}</span>
           </span>
         </>
-      ) : <span className="text-xs text-faint">TBD</span>}
+      ) : <span className="text-xs text-faint">{COPY.en.tbd}</span>}
     </div>
   );
 }
