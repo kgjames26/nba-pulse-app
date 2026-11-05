@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { isYmd } from "./dates.ts";
 import type { Lang } from "./i18n.ts";
-import type { GameDetail, Narrative, Slate, Standings } from "./types.ts";
+import type { GameDetail, Narrative, PlayoffSeriesScore, Slate, Standings } from "./types.ts";
 
 const LANGS = new Set<Lang>(["fr", "en", "es", "tr", "ar", "zh"]);
 
@@ -78,5 +78,25 @@ export const getNews = createServerFn({ method: "POST" })
       return { ok: true, ...(await loadNews(data.lang, data.refresh)) };
     } catch {
       return { ok: false, articles: [], translation: "unavailable" };
+    }
+  });
+
+
+export const getPlayoffScores = createServerFn({ method: "POST" })
+  .validator((input: { seasonYear: number }) => {
+    if (!input || !Number.isInteger(input.seasonYear) || input.seasonYear < 2000 || input.seasonYear > 2100) {
+      throw new Error("bad season");
+    }
+    return { seasonYear: input.seasonYear };
+  })
+  .handler(async ({ data }): Promise<
+    | { ok: true; scores: PlayoffSeriesScore[] }
+    | { ok: false; error: "feed" }
+  > => {
+    try {
+      const { loadPlayoffSeriesScores } = await import("./espn.server.ts");
+      return { ok: true, scores: await loadPlayoffSeriesScores(data.seasonYear) };
+    } catch {
+      return { ok: false, error: "feed" };
     }
   });

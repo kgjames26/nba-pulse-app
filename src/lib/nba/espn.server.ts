@@ -10,6 +10,7 @@ import type {
   Leader,
   OddsView,
   PlayerLine,
+  PlayoffSeriesScore,
   Side,
   Slate,
   StandingRow,
@@ -453,6 +454,61 @@ export async function loadGame(id: string): Promise<GameDetail> {
     leaders: leadersOf(body),
     fetchedAt: new Date().toISOString(),
   };
+}
+
+export async function loadPlayoffSeriesScores(seasonYear: number): Promise<PlayoffSeriesScore[]> {
+  const path = `/apis/site/v2/sports/basketball/nba/scoreboard?dates=${seasonYear}&seasontype=3`;
+  const body = obj(await espn(path, 45_000));
+  if (!body) throw new Error("feed");
+  const series = new Map<string, PlayoffSeriesScore>();
+
+  for (const event of arr(body.events)) {
+    const row = obj(event);
+    const comp = obj(arr(row?.competitions)[0]);
+    const competitors = arr(comp?.competitors);
+    const home = obj(competitors.find((item) => str(obj(item)?.homeAway) === "home"));
+    const away = obj(competitors.find((item) => str(obj(item)?.homeAway) === "away"));
+    const homeTeam = obj(home?.team);
+    const awayTeam = obj(away?.team);
+    const homeId = str(homeTeam?.id);
+    const awayId = str(awayTeam?.id);
+    if (!homeId || !awayId) continue;
+
+    const teamAId = [homeId, awayId].sort()[0]!;
+    const teamBId = [homeId, awayId].sort()[1]!;
+    const key = `${teamAId}:${teamBId}`;
+    const score = series.get(key) ?? {
+      teamAId,
+      teamBId,
+      teamAWins: 0,
+      teamBWins: 0,
+      liveScoreA: null,
+      liveScoreB: null,
+    };
+    const homeScore = num(home?.score);
+    const awayScore = num(away?.score);
+    const status = obj(obj(comp?.status)?.type) ?? obj(obj(row?.status)?.type);
+    const state = str(status?.state);
+    const completed = status?.completed === true || state === "post";
+
+    if (completed && homeScore != null && awayScore != null && homeScore !== awayScore) {
+      const homeWon = obj(competitors.find((item) => obj(item)?.winner === true)) === home;
+      const homeWins = homeWon || (!competitors.some((item) => obj(item)?.winner === true) && homeScore > awayScore);
+      if (homeWins) {
+        if (homeId === teamAId) score.teamAWins += 1;
+        else score.teamBWins += 1;
+      } else {
+        if (awayId === teamAId) score.teamAWins += 1;
+        else score.teamBWins += 1;
+      }
+    } else if (state === "in" && homeScore != null && awayScore != null) {
+      score.liveScoreA = homeId === teamAId ? homeScore : awayScore;
+      score.liveScoreB = homeId === teamBId ? homeScore : awayScore;
+    }
+    series.set(key, score);
+  }
+
+  return [...series.values()];
 }
 
 function phaseName(value: unknown): string {

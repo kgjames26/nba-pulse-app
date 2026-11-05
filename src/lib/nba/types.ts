@@ -120,6 +120,15 @@ export type StandingRow = {
   seed: string;
 };
 
+export type PlayoffSeriesScore = {
+  teamAId: string;
+  teamBId: string;
+  teamAWins: number;
+  teamBWins: number;
+  liveScoreA: number | null;
+  liveScoreB: number | null;
+};
+
 export type Standings = {
   season: string;
   phase: string;
