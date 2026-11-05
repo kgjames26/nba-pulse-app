@@ -12,7 +12,19 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
   }, [onComplete]);
 
   return (
-    <div className="nba-intro" aria-hidden="true">
+    <div
+      className="nba-intro"
+      role="button"
+      tabIndex={0}
+      aria-label="Skip intro"
+      onClick={onComplete}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onComplete();
+        }
+      }}
+    >
       <div className="intro-court" />
       <div className="intro-arena-lights" />
       <div className="intro-kicker"><span>THE GAME</span><i /> <span>STARTS HERE</span></div>

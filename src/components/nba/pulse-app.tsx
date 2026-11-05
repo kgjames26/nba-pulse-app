@@ -34,7 +34,7 @@ export function PulseApp() {
   return (
     <>
       {ready ? <Desk /> : <Splash />}
-      {(!introComplete || !ready) && <IntroAnimation onComplete={finishIntro} />}
+      {!introComplete && <IntroAnimation onComplete={finishIntro} />}
     </>
   );
 }

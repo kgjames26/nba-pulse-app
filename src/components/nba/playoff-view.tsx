@@ -233,7 +233,6 @@ export function PlayoffView({
                   headerAdornment={
                     <ConferenceChampionBadge
                       label={conference === "east" ? copy.eastChampion : copy.westChampion}
-                      conference={conference}
                     />
                   }
                 >
@@ -278,7 +277,7 @@ export function PlayoffView({
 }
 
 function postseasonYear(season: string): number {
-  const years = season.match(/d{4}/g)?.map(Number) ?? [];
+  const years = season.match(/\d{4}/g)?.map(Number) ?? [];
   if (years.length > 1) return years[1] ?? 0;
   return years.length === 1 ? (years[0] ?? 0) + 1 : 0;
 }
@@ -323,15 +322,11 @@ function Round({ title, tone, children, headerAdornment }: { title: string; tone
   );
 }
 
-function ConferenceChampionBadge({ label, conference }: { label: string; conference: Conference }) {
+function ConferenceChampionBadge({ label }: { label: string }) {
   return (
-    <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 py-1 ps-1.5 pe-2 text-[10px] font-semibold uppercase tracking-wide text-amber-100">
-      <svg aria-hidden="true" viewBox="0 0 48 36" className="size-7">
-        <path d="M5 22c1-9 9-16 20-17l15 15c-7 2-15 4-25 4-4 0-7-.5-10-2Z" fill="#fbbf24" fillOpacity=".8" stroke="#fde68a" strokeWidth="1.5" />
-        <path d="M4 23c10 1 22-1 37-4 2 2 3 4 3 6-11 5-26 7-37 3-2-1-3-3-3-5Z" fill="#d97706" stroke="#fde68a" strokeWidth="1.5" />
-        <text x="24" y="20" textAnchor="middle" fontSize="6" fontWeight="800" fill="#422006">{conference === "east" ? "EST" : "OUEST"}</text>
-      </svg>
-      <span className="max-w-24 leading-tight normal-case">{label}</span>
+    <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 py-1 ps-1.5 pe-2 text-[10px] font-semibold tracking-wide text-amber-100">
+      <Trophy aria-hidden="true" className="size-4 shrink-0" />
+      <span className="max-w-28 leading-tight">{label}</span>
     </div>
   );
 }
