@@ -53,7 +53,7 @@ export function StandingsView({
 
   return (
     <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
-      <div className="mx-auto min-h-screen max-w-xl px-4 pb-12 pt-4">
+      <div className="mx-auto min-h-screen max-w-xl px-3 pb-12 pt-4">
         <header className="border-b border-line pb-4">
           <div className="flex items-center justify-between gap-3">
             <p className="font-display text-2xl tracking-wide">
