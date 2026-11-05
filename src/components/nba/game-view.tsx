@@ -275,7 +275,7 @@ function Recap({
   stat: ReturnType<typeof statReading>;
   pending: boolean;
 }) {
-  const facts = stat.text.split(/(?<=[.!?])\\s+/).filter(Boolean);
+  const facts = stat.text.split(/(?<=[.!?])\s+/).filter(Boolean);
   return (
     <section className="mt-8">
       <h2 className="font-display text-2xl">{t(lang, "recap")}</h2>
@@ -283,11 +283,6 @@ function Recap({
         <p className="mt-4 text-sm text-muted">{t(lang, "comingSoonRecap")}</p>
       ) : (
         <div className="mt-5 flex flex-col gap-4">
-          {stat.scoreLine && (
-            <div dir="ltr" className="rounded-card border border-line bg-surface px-5 py-5">
-              <p className="font-display text-2xl tabular-nums leading-tight">{stat.scoreLine}</p>
-            </div>
-          )}
           {facts.length > 0 && (
             <ul className="grid gap-3 sm:grid-cols-2">
               {facts.map((fact, index) => (
