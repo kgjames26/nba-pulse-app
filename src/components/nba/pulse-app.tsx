@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { getSlate } from "@/lib/nba/api";
 import { addDaysYmd, etYmd, referenceSlate } from "@/lib/nba/dates";
 import { dirFor, t } from "@/lib/nba/i18n";
@@ -7,6 +7,7 @@ import { usePrefs } from "@/lib/nba/prefs";
 import { rankGames } from "@/lib/nba/rank";
 import { showResultsFor } from "@/lib/nba/present";
 import { GameView } from "./game-view";
+import { IntroAnimation } from "./intro-animation";
 import { Onboarding } from "./onboarding";
 import { SettingsView } from "./settings-view";
 import { SlateView } from "./slate-view";
@@ -21,12 +22,20 @@ export function PulseApp() {
     () => false,
   );
   const [mounted, setMounted] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
   useEffect(() => {
     void usePrefs.persist.rehydrate();
     setMounted(true);
   }, []);
-  if (!mounted || !hydrated) return <Splash />;
-  return <Desk />;
+  const finishIntro = useCallback(() => setIntroComplete(true), []);
+  const ready = mounted && hydrated;
+
+  return (
+    <>
+      {ready ? <Desk /> : <Splash />}
+      {(!introComplete || !ready) && <IntroAnimation onComplete={finishIntro} />}
+    </>
+  );
 }
 
 function Splash() {
