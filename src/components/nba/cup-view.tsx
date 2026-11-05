@@ -41,7 +41,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const cup = query.data?.ok ? query.data.cup : null;
   const groups = cup?.groups.filter((group) => group.conference === conference) ?? [];
   const games = cup?.games.filter((item) => item.stage === "group" && item.conference === conference) ?? [];
-  const runnersUp = groups.map((group) => group.teams[1]).filter((team): team is CupTeamStanding => Boolean(team));
+  const runnersUp = groups.map((group) => group.teams[1]).filter((team): team is CupTeamStanding => Boolean(team && team.played > 0));
   const wildcard = [...runnersUp].sort((a, b) => b.wins - a.wins || b.pointDiff - a.pointDiff || b.pointsFor - a.pointsFor)[0];
   const schedule = games.filter((item) => item.game.status === "pre" || item.game.status === "in").slice(0, 5);
   const recent = games.filter((item) => item.game.status === "post").slice(-5).reverse();
@@ -99,7 +99,7 @@ function GroupTable({ group, copy }: { group: CupGroup; copy: typeof COPY[Lang] 
       <span className="flex min-w-0 items-center gap-2"><span className="w-4 shrink-0 text-xs text-faint">{index+1}</span><TeamMark abbr={team.abbr} color={UNKNOWN_COLOR} sources={[team.logo]} /><span className="truncate text-xs">{team.name}</span></span>
       <span className="text-center text-xs tabular-nums">{team.played}</span><span className="text-center text-xs tabular-nums">{team.wins}–{team.losses}</span>
       <span className={team.pointDiff > 0 ? "text-center text-xs text-emerald-200" : team.pointDiff < 0 ? "text-center text-xs text-rose-200" : "text-center text-xs text-faint"}>{team.pointDiff > 0 ? "+" : ""}{team.pointDiff}</span>
-    </li>)}</ol><p className="border-t border-line px-3 py-2 text-[10px] text-faint">{copy.leader}: {group.teams[0]?.name ?? copy.undecided}</p>
+    </li>)}</ol><p className="border-t border-line px-3 py-2 text-[10px] text-faint">{copy.leader}: {group.teams[0]?.played ? group.teams[0].name : copy.undecided}</p>
   </section>;
 }
 function Qualifier({ label, team }: { label: string; team?: CupTeamStanding }) {
