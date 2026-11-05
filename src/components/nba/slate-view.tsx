@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { formatSlateDate, formatTip, slateRelation, type SlateRelation } from "@/lib/nba/dates";
+import { formatLocalTipWithDay, formatSlateDate, formatTip, slateRelation, type SlateRelation } from "@/lib/nba/dates";
 import { localeFor, phaseLabel, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { presentGame, showResultsFor } from "@/lib/nba/present";
 import type { GameCard, Slate } from "@/lib/nba/types";
@@ -188,7 +188,7 @@ function GameRow({
         {favorite && <Star className="size-3.5 fill-current text-accent" aria-label={t(lang, "starLabel")} />}
         <span>{status}</span>
         {period && <span>{period}</span>}
-        {view.status === "pre" && <span>{formatTip(game.tipoff, locale)}</span>}
+        {view.status === "pre" && <span>{formatLocalTipWithDay(game.tipoff, locale)}</span>}
         {national.length > 0 && <span className="text-faint">{t(lang, "nationalTv")} · {national.join(" · ")}</span>}
       </span>
     </button>
