@@ -56,7 +56,7 @@ export function SlateView({
 
   return (
     <section
-      className="flex min-h-screen flex-col border-line lg:col-span-1 lg:border-e"
+      className="flex min-h-screen flex-col overflow-x-hidden border-line lg:col-span-1 lg:border-e"
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest("button, a, summary")) return;
         start.current = { x: event.clientX, y: event.clientY, top: scroller.current?.scrollTop ?? 0 };
