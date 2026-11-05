@@ -54,23 +54,25 @@ export function StandingsView({
   return (
     <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-xl px-3 pb-12 pt-4 sm:px-4">
-        <header>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-display text-2xl tracking-wide">
-            NBA <span className="text-accent">PULSE</span>
-          </p>
-            <SectionNav
-              active="standings"
-              lang={lang}
-              onScore={onHome}
-              onStandings={() => undefined}
-              onNews={onNews}
-              onPlayoff={onPlayoff}
-              onCup={onCup}
-              onSettings={onSettings}
-            />
-          </div>
-          <h1 className="mt-5 font-display text-4xl font-bold leading-none sm:text-5xl">{t(lang, "standings")}</h1>
+        <header className="border-b border-line pb-4">
+          <p className="font-display text-2xl tracking-wide">
+          NBA <span className="text-accent">PULSE</span>
+        </p>
+        <div className="mt-4 max-w-full overflow-x-auto pb-1">
+          <SectionNav
+            active="standings"
+            lang={lang}
+            onScore={onHome}
+            onStandings={() => undefined}
+            onNews={onNews}
+            onPlayoff={onPlayoff}
+            onCup={onCup}
+            onSettings={onSettings}
+          />
+        </div>
+        <div className="mt-5 border-s-4 border-accent ps-4">
+          <h1 className="font-display text-5xl font-extrabold leading-none text-accent sm:text-6xl">{t(lang, "standings")}</h1>
+        </div> 
         </header>
         {!canSee && (
           <div className="mt-8 rounded-card border border-line bg-surface p-5">
