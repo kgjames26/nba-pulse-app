@@ -89,21 +89,24 @@ export function NewsView({
   return (
     <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-3xl px-3 pb-12 pt-4 sm:px-4">
-        <header className="flex flex-nowrap items-center justify-between gap-2 border-b border-line pb-4">
-          <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-widest text-accent">{copy.source}</p>
-            <h1 className="truncate font-display text-3xl leading-none sm:text-4xl">{copy.title}</h1>
+        <header className="border-b border-line pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-display text-2xl tracking-wide">
+            NBA <span className="text-accent">PULSE</span>
+          </p>
+            <SectionNav
+              active="news"
+              lang={lang}
+              onScore={onScore}
+              onStandings={onStandings}
+              onNews={() => undefined}
+              onPlayoff={onPlayoff}
+              onCup={onCup}
+              onSettings={onSettings}
+            />
           </div>
-          <SectionNav
-            active="news"
-            lang={lang}
-            onScore={onScore}
-            onStandings={onStandings}
-            onNews={() => undefined}
-            onPlayoff={onPlayoff}
-            onCup={onCup}
-            onSettings={onSettings}
-          />
+          <h1 className="mt-5 font-display text-4xl font-bold leading-none sm:text-5xl">{copy.title}</h1>
+          <p className="mt-2 text-xs uppercase tracking-widest text-accent">{copy.source}</p>
         </header>
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
