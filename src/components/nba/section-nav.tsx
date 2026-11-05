@@ -38,7 +38,7 @@ export function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex shrink-0 flex-nowrap items-center justify-end gap-1.5">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex w-full min-w-0 flex-nowrap items-center justify-between gap-1 sm:justify-end sm:gap-1.5">
       {actions.map(({ key, onClick }) => (
         <button
           key={key}
@@ -46,7 +46,7 @@ export function SectionNav({
           onClick={onClick}
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
-          className={key === active ? "min-h-11 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-4 text-base font-extrabold text-accent-ink shadow-lg shadow-accent/40 sm:px-5 sm:text-lg" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
+          className={key === active ? "min-h-10 shrink-0 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-2 text-xs font-extrabold text-accent-ink shadow-md shadow-accent/30 sm:min-h-11 sm:px-4 sm:text-base" : "min-h-10 shrink-0 whitespace-nowrap rounded-full border border-line px-1.5 text-[10px] transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
