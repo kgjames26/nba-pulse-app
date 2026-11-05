@@ -90,23 +90,25 @@ export function NewsView({
     <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-3xl px-3 pb-12 pt-4 sm:px-4">
         <header className="border-b border-line pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-display text-2xl tracking-wide">
-            NBA <span className="text-accent">PULSE</span>
-          </p>
-            <SectionNav
-              active="news"
-              lang={lang}
-              onScore={onScore}
-              onStandings={onStandings}
-              onNews={() => undefined}
-              onPlayoff={onPlayoff}
-              onCup={onCup}
-              onSettings={onSettings}
-            />
-          </div>
-          <h1 className="mt-5 font-display text-4xl font-bold leading-none sm:text-5xl">{copy.title}</h1>
+          <p className="font-display text-2xl tracking-wide">
+          NBA <span className="text-accent">PULSE</span>
+        </p>
+        <div className="mt-4 max-w-full overflow-x-auto pb-1">
+          <SectionNav
+            active="news"
+            lang={lang}
+            onScore={onScore}
+            onStandings={onStandings}
+            onNews={() => undefined}
+            onPlayoff={onPlayoff}
+            onCup={onCup}
+            onSettings={onSettings}
+          />
+        </div>
+        <div className="mt-5 border-s-4 border-accent ps-4">
+          <h1 className="font-display text-5xl font-extrabold leading-none text-accent sm:text-6xl">{copy.title}</h1>
           <p className="mt-2 text-xs uppercase tracking-widest text-accent">{copy.source}</p>
+        </div>
         </header>
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
