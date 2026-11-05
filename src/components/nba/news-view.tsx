@@ -57,12 +57,14 @@ export function NewsView({
   onScore,
   onStandings,
   onPlayoff,
+  onCup,
   onSettings,
 }: {
   lang: Lang;
   onScore: () => void;
   onStandings: () => void;
   onPlayoff: () => void;
+  onCup: () => void;
   onSettings: () => void;
 }) {
   const [targetLang, setTargetLang] = useState<Lang>(lang);
@@ -99,6 +101,7 @@ export function NewsView({
             onStandings={onStandings}
             onNews={() => undefined}
             onPlayoff={onPlayoff}
+            onCup={onCup}
             onSettings={onSettings}
           />
         </header>
