@@ -309,28 +309,25 @@ function clipsOf(root: Record<string, unknown>, roster: string[], game: GameCard
     });
   }
 
-  const seen = new Set<string>();
-  const verified = clips.filter((clip) => {
-    if (seen.has(clip.id)) return false;
-    seen.add(clip.id);
-    return true;
-  }).slice(0, 5);
-  if (verified.length) return verified;
-
+  const unique = [...new Map(clips.map((clip) => [clip.id, clip])).values()];
+  const highlight = unique.find((clip) => /highlights?/i.test(clip.title));
+  const recap = unique.find((clip) => /full game|full match|recap|condensed/i.test(clip.title) && !/highlights?/i.test(clip.title));
   const matchup = `${game.away.name} vs ${game.home.name}`;
   const gameDate = game.tipoff.slice(0, 10);
-  return [
-    { id: `youtube-highlights-${game.id}`, title: `${matchup} · ${gameDate} · NBA game highlights`, query: `${matchup} NBA highlights ${gameDate}` },
-    { id: `youtube-recap-${game.id}`, title: `${matchup} · ${gameDate} · Full game recap`, query: `${matchup} NBA full game recap ${gameDate}` },
-  ].map((item) => ({
-    id: item.id,
-    title: item.title,
+  const searchClip = (category: "highlights" | "recap", query: string): Clip => ({
+    id: `youtube-${category}-${game.id}`,
+    title: query,
     thumbnail: "",
-    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.query)}`,
+    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
     duration: 0,
     player: null,
-    kind: "package" as const,
-  }));
+    kind: "package",
+    category,
+  });
+  return [
+    highlight ? { ...highlight, category: "highlights" as const } : searchClip("highlights", `${matchup} NBA game highlights ${gameDate}`),
+    recap ? { ...recap, category: "recap" as const } : searchClip("recap", `${matchup} NBA full game recap ${gameDate}`),
+  ];
 }
 function oddsFrom(comp: Record<string, unknown> | null, pick: Record<string, unknown> | null, homeId: string, awayId: string): OddsView | null {
   const fetchedAt = new Date().toISOString();
