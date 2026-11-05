@@ -46,7 +46,7 @@ export function SectionNav({
           onClick={onClick}
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
-          className={key === active ? "min-h-11 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-4 text-base font-extrabold text-accent-ink shadow-lg shadow-accent/40 ring-2 ring-accent/50 ring-offset-2 ring-offset-bg sm:px-5 sm:text-lg" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
+          className={key === active ? "min-h-11 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-4 text-base font-extrabold text-accent-ink shadow-lg shadow-accent/40 sm:px-5 sm:text-lg" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
@@ -63,7 +63,7 @@ export function SettingsButton({ lang, onClick }: { lang: Lang; onClick: () => v
       onClick={onClick}
       aria-label={t(lang, "settings")}
       title={t(lang, "settings")}
-      className="grid size-10 shrink-0 place-items-center rounded-full border border-line transition-colors hover:bg-surface"
+      className="grid size-11 shrink-0 place-items-center rounded-full border border-accent bg-accent text-accent-ink shadow-md shadow-accent/30 transition-transform hover:scale-105"
     >
       <Settings aria-hidden="true" className="size-5" />
     </button>
