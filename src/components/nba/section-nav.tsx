@@ -39,7 +39,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-bg/95 px-3 pb-3 pt-4 backdrop-blur sm:px-4">
+    <header className="sticky top-0 z-20 -mx-3 border-b border-line bg-bg/95 px-3 pb-3 pt-4 backdrop-blur sm:-mx-4 sm:px-4">
       <div className="flex min-h-11 items-center justify-between gap-3">
         <p className="min-w-0 font-display text-2xl tracking-wide">
           NBA <span className="text-accent">PULSE</span>
@@ -92,7 +92,7 @@ function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="mt-4 grid w-full grid-cols-5 gap-1">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="mt-4 grid w-full grid-cols-5 gap-0.5 sm:gap-1">
       {actions.map(({ key, onClick }) => (
         <button
           key={key}
@@ -101,8 +101,8 @@ function SectionNav({
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
           className={key === active
-            ? "flex min-h-10 min-w-0 items-center justify-center rounded-full border-2 border-accent bg-accent px-1 py-1 text-center text-[10px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:text-sm"
-            : "flex min-h-10 min-w-0 items-center justify-center rounded-full border border-line px-1 py-1 text-center text-[10px] leading-tight transition-colors hover:bg-surface sm:text-sm"}
+            ? "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border-2 border-accent bg-accent px-0.5 py-1 text-center text-[9px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:px-1 sm:text-xs md:text-sm"
+            : "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border border-line px-0.5 py-1 text-center text-[9px] leading-tight transition-colors hover:bg-surface sm:px-1 sm:text-xs md:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
@@ -118,9 +118,9 @@ export function SettingsButton({ lang, onClick }: { lang: Lang; onClick: () => v
       onClick={onClick}
       aria-label={t(lang, "settings")}
       title={t(lang, "settings")}
-      className="grid size-11 shrink-0 place-items-center rounded-full border border-accent bg-accent text-accent-ink shadow-md shadow-accent/30 transition-transform hover:scale-105"
+      className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-accent bg-accent text-accent-ink shadow-lg shadow-accent/40 transition-transform hover:scale-105"
     >
-      <Settings aria-hidden="true" className="size-5" />
+      <Settings aria-hidden="true" className="size-6 stroke-[2.5]" />
     </button>
   );
 }
