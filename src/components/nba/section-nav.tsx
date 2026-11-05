@@ -1,4 +1,5 @@
 import { Settings } from "lucide-react";
+import type { ReactNode } from "react";
 import { t, type Lang } from "@/lib/nba/i18n";
 
 type Section = "score" | "standings" | "news" | "playoff" | "cup";
@@ -12,7 +13,60 @@ const LABELS: Record<Lang, Record<Section, string>> = {
   zh: { score: "赛程", standings: "排名", news: "新闻", playoff: "季后赛", cup: "杯赛" },
 };
 
-export function SectionNav({
+export function PageHeader({
+  active,
+  title,
+  subtitle,
+  lang,
+  onScore,
+  onStandings,
+  onNews,
+  onPlayoff,
+  onCup,
+  onSettings,
+  children,
+}: {
+  active: Section;
+  title?: string;
+  subtitle?: string;
+  lang: Lang;
+  onScore: () => void;
+  onStandings: () => void;
+  onNews: () => void;
+  onPlayoff: () => void;
+  onCup: () => void;
+  onSettings: () => void;
+  children?: ReactNode;
+}) {
+  return (
+    <header className="sticky top-0 z-20 border-b border-line bg-bg/95 px-3 pb-3 pt-4 backdrop-blur sm:px-4">
+      <div className="flex min-h-11 items-center justify-between gap-3">
+        <p className="min-w-0 font-display text-2xl tracking-wide">
+          NBA <span className="text-accent">PULSE</span>
+        </p>
+        <SettingsButton lang={lang} onClick={onSettings} />
+      </div>
+      <div className="mt-3 min-w-0">
+        <h1 className="truncate font-display text-4xl font-extrabold leading-none text-accent sm:text-5xl">
+          {title ?? LABELS[lang][active]}
+        </h1>
+        {subtitle && <p className="mt-1 truncate text-xs uppercase tracking-widest text-muted">{subtitle}</p>}
+      </div>
+      <SectionNav
+        active={active}
+        lang={lang}
+        onScore={onScore}
+        onStandings={onStandings}
+        onNews={onNews}
+        onPlayoff={onPlayoff}
+        onCup={onCup}
+      />
+      {children && <div className="mt-3">{children}</div>}
+    </header>
+  );
+}
+
+function SectionNav({
   active,
   lang,
   onScore,
@@ -38,7 +92,7 @@ export function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex w-full min-w-0 flex-nowrap items-center justify-between gap-1 sm:justify-end sm:gap-1.5">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="mt-4 grid w-full grid-cols-5 gap-1">
       {actions.map(({ key, onClick }) => (
         <button
           key={key}
@@ -46,12 +100,13 @@ export function SectionNav({
           onClick={onClick}
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
-          className={key === active ? "min-h-10 shrink-0 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-2 text-xs font-extrabold text-accent-ink shadow-md shadow-accent/30 sm:min-h-11 sm:px-4 sm:text-base" : "min-h-10 shrink-0 whitespace-nowrap rounded-full border border-line px-1.5 text-[10px] transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
+          className={key === active
+            ? "flex min-h-10 min-w-0 items-center justify-center rounded-full border-2 border-accent bg-accent px-1 py-1 text-center text-[10px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:text-sm"
+            : "flex min-h-10 min-w-0 items-center justify-center rounded-full border border-line px-1 py-1 text-center text-[10px] leading-tight transition-colors hover:bg-surface sm:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
       ))}
-
     </nav>
   );
 }
