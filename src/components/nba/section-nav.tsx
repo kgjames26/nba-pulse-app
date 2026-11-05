@@ -48,7 +48,7 @@ export function SectionNav({
           onClick={onClick}
           aria-current={key === active ? "page" : undefined}
           tabIndex={key === active ? -1 : undefined}
-          className={key === active ? "min-h-10 whitespace-nowrap rounded-full border border-accent bg-accent px-2.5 text-xs font-semibold text-accent-ink shadow-sm shadow-accent/20 sm:px-3 sm:text-sm" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
+          className={key === active ? "min-h-10 whitespace-nowrap rounded-full border-2 border-accent bg-accent px-2.5 text-sm font-bold text-accent-ink shadow-md shadow-accent/30 sm:px-3 sm:text-base" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
