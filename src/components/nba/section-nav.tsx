@@ -41,12 +41,15 @@ export function SectionNav({
 
   return (
     <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex shrink-0 flex-nowrap items-center justify-end gap-1.5">
-      {actions.filter(({ key }) => key !== active).map(({ key, onClick }) => (
+      {actions.map(({ key, onClick }) => (
         <button
           key={key}
           type="button"
           onClick={onClick}
-          className="min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"
+          disabled={key === active}
+          aria-hidden={key === active}
+          tabIndex={key === active ? -1 : undefined}
+          className={key === active ? "invisible pointer-events-none min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs sm:px-3 sm:text-sm" : "min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"}
         >
           {LABELS[lang][key]}
         </button>
