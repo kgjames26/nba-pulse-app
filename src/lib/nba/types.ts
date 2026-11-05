@@ -153,3 +153,36 @@ export type Tactic = {
 export type Narrative =
   | { mode: "desk"; text: string; duels: DuelCopy[]; tactic?: Tactic }
   | { mode: "stat" };
+
+export type CupTeamStanding = {
+  id: string;
+  abbr: string;
+  name: string;
+  logo: string;
+  played: number;
+  wins: number;
+  losses: number;
+  pointsFor: number;
+  pointsAgainst: number;
+  pointDiff: number;
+};
+
+export type CupGroup = {
+  conference: "east" | "west";
+  name: "A" | "B" | "C";
+  teams: CupTeamStanding[];
+};
+
+export type CupGame = {
+  conference: "east" | "west";
+  group: "A" | "B" | "C";
+  game: GameCard;
+};
+
+export type CupData = {
+  season: string;
+  groupPlayDates: string[];
+  games: CupGame[];
+  groups: CupGroup[];
+  fetchedAt: string;
+};
