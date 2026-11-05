@@ -96,7 +96,7 @@ export function NewsView({
             </p>
             <SettingsButton lang={lang} onClick={onSettings} />
           </div>
-          <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
+          <div className="mt-4 max-w-full overflow-x-auto py-2">
             <SectionNav
               active="news"
               lang={lang}
