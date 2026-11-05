@@ -75,10 +75,10 @@ export function SlateView({
       }}
     >
       <header className="sticky top-0 z-10 bg-bg/95 px-4 pb-3 pt-4 backdrop-blur">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-display text-2xl tracking-wide">
-            NBA <span className="text-accent">PULSE</span>
-          </p>
+        <p className="font-display text-2xl tracking-wide">
+          NBA <span className="text-accent">PULSE</span>
+        </p>
+        <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
           <SectionNav
             active="score"
             lang={lang}
