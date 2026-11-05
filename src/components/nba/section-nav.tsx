@@ -34,7 +34,7 @@ export function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex items-center justify-end gap-2">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex flex-wrap items-center justify-end gap-2">
       {actions.filter(({ key }) => key !== active).map(({ key, onClick }) => (
         <button
           key={key}
