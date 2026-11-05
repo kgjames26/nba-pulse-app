@@ -5,7 +5,7 @@ import { localeFor, phaseLabel, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { presentGame, showResultsFor } from "@/lib/nba/present";
 import type { GameCard, Slate } from "@/lib/nba/types";
 import { IconButton, TeamMark } from "./ui";
-import { SectionNav, SettingsButton } from "./section-nav";
+import { PageHeader } from "./section-nav";
 
 const RELATION: Record<SlateRelation, "yesterday" | "todaySlate" | "upcomingSlate" | "archiveSlate"> = {
   yesterday: "yesterday",
@@ -74,31 +74,23 @@ export function SlateView({
         if (origin.top <= 2 && dy > 96 && dy > Math.abs(dx) * 1.4) onStandings();
       }}
     >
-      <header className="sticky top-0 z-10 bg-bg/95 px-3 pb-3 pt-4 backdrop-blur">
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-display text-2xl tracking-wide">
-            NBA <span className="text-accent">PULSE</span>
-          </p>
-          <SettingsButton lang={lang} onClick={onSettings} />
-        </div>
-        <div className="mt-4 max-w-full overflow-x-auto py-2">
-          <SectionNav
-            active="score"
-            lang={lang}
-            onScore={() => undefined}
-            onStandings={onStandings}
-            onNews={onNews}
-            onPlayoff={onPlayoff}
-            onCup={onCup}
-          />
-        </div>
-        <div dir="ltr" className="mt-5 flex items-end justify-between gap-2">
+      <PageHeader
+        active="score"
+        lang={lang}
+        onScore={() => undefined}
+        onStandings={onStandings}
+        onNews={onNews}
+        onPlayoff={onPlayoff}
+        onCup={onCup}
+        onSettings={onSettings}
+      >
+                <div dir="ltr" className="flex items-end justify-between gap-2">
           <IconButton label={t(lang, "archiveSlate")} onClick={() => onShift(-1)}>
             <ChevronLeft className="size-5" />
           </IconButton>
           <div className="min-w-0 flex-1 text-center" aria-live="polite">
             <p className="text-xs uppercase tracking-widest text-accent">{t(lang, RELATION[relation])}</p>
-            <h1 className="truncate font-display text-4xl leading-none">{formatSlateDate(date, locale)}</h1>
+            <h2 className="truncate font-display text-4xl leading-none">{formatSlateDate(date, locale)}</h2>
             {slate?.season && (
               <p className="mt-1 text-xs text-faint">
                 {slate.season}
@@ -111,7 +103,7 @@ export function SlateView({
           </IconButton>
         </div>
         <p className="mt-3 text-center text-xs text-faint">{t(lang, "swipeHint")}</p>
-      </header>
+            </PageHeader>
       <div ref={scroller} className="flex-1 px-4 pb-10">
         {loading && !slate && (
           <div className="flex flex-col gap-3" aria-hidden>
