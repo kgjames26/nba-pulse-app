@@ -5,6 +5,7 @@ import { localeFor, phaseLabel, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { presentGame, showResultsFor } from "@/lib/nba/present";
 import type { GameCard, Slate } from "@/lib/nba/types";
 import { IconButton, TeamMark } from "./ui";
+import { SectionNav } from "./section-nav";
 
 const RELATION: Record<SlateRelation, "yesterday" | "todaySlate" | "upcomingSlate" | "archiveSlate"> = {
   yesterday: "yesterday",
@@ -26,6 +27,7 @@ export function SlateView({
   onRetry,
   onOpen,
   onStandings,
+  onNews,
   onSettings,
 }: {
   lang: Lang;
@@ -40,6 +42,7 @@ export function SlateView({
   onRetry: () => void;
   onOpen: (id: string) => void;
   onStandings: () => void;
+  onNews: () => void;
   onSettings: () => void;
 }) {
   const locale = localeFor(lang);
@@ -72,14 +75,14 @@ export function SlateView({
           <p className="font-display text-2xl tracking-wide">
             NBA <span className="text-accent">PULSE</span>
           </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={onStandings} className="min-h-11 rounded-full border border-line px-4 text-sm">
-              {t(lang, "pullHint")}
-            </button>
-            <button type="button" onClick={onSettings} className="min-h-11 rounded-full border border-line px-4 text-sm">
-              {t(lang, "settings")}
-            </button>
-          </div>
+          <SectionNav
+            active="score"
+            lang={lang}
+            onScore={() => undefined}
+            onStandings={onStandings}
+            onNews={onNews}
+            onSettings={onSettings}
+          />
         </div>
         <div dir="ltr" className="mt-5 flex items-end justify-between gap-2">
           <IconButton label={t(lang, "archiveSlate")} onClick={() => onShift(-1)}>
