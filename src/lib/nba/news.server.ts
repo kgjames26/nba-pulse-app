@@ -1,3 +1,5 @@
+import type { Lang } from "./i18n.ts";
+
 export type NbaNewsItem = {
   id: string;
   headline: string;
@@ -8,8 +10,21 @@ export type NbaNewsItem = {
   byline: string;
 };
 
-type Cache = { expiresAt: number; articles: NbaNewsItem[] };
-let cache: Cache | null = null;
+export type NewsTranslation = "google" | "original" | "unavailable";
+export type NbaNewsResponse = { articles: NbaNewsItem[]; translation: NewsTranslation };
+
+type Cache<T> = { expiresAt: number; value: T };
+let newsCache: Cache<NbaNewsItem[]> | null = null;
+const translationCache = new Map<Lang, Cache<NbaNewsResponse>>();
+
+const GOOGLE_LANGUAGE: Record<Lang, string> = {
+  fr: "fr",
+  en: "en",
+  es: "es",
+  tr: "tr",
+  ar: "ar",
+  zh: "zh-CN",
+};
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -21,8 +36,8 @@ function text(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export async function loadNews(): Promise<NbaNewsItem[]> {
-  if (cache && cache.expiresAt > Date.now()) return cache.articles;
+async function fetchNews(refresh: boolean): Promise<NbaNewsItem[]> {
+  if (!refresh && newsCache && newsCache.expiresAt > Date.now()) return newsCache.value;
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
@@ -54,9 +69,65 @@ export async function loadNews(): Promise<NbaNewsItem[]> {
       }];
     }).slice(0, 20);
 
-    cache = { expiresAt: Date.now() + 5 * 60_000, articles };
+    newsCache = { expiresAt: Date.now() + 5 * 60_000, value: articles };
     return articles;
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function translateArticles(articles: NbaNewsItem[], lang: Lang): Promise<NbaNewsResponse> {
+  if (lang === "en") return { articles, translation: "original" };
+
+  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
+  if (!apiKey) return { articles, translation: "unavailable" };
+
+  const texts = articles.flatMap((article) => [article.headline, article.description]);
+  if (texts.length === 0) return { articles, translation: "google" };
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch(
+      `https://translation.googleapis.com/language/translate/v2?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ q: texts, target: GOOGLE_LANGUAGE[lang], format: "text" }),
+        signal: controller.signal,
+      },
+    );
+    if (!response.ok) return { articles, translation: "unavailable" };
+
+    const payload = record(await response.json());
+    const data = record(payload?.data);
+    const translations = Array.isArray(data?.translations) ? data.translations : [];
+    if (translations.length !== texts.length) return { articles, translation: "unavailable" };
+
+    const translatedText = translations.map((value) => text(record(value)?.translatedText));
+    if (translatedText.some((value) => !value)) return { articles, translation: "unavailable" };
+
+    return {
+      articles: articles.map((article, index) => ({
+        ...article,
+        headline: translatedText[index * 2] ?? article.headline,
+        description: translatedText[index * 2 + 1] ?? article.description,
+      })),
+      translation: "google",
+    };
+  } catch {
+    return { articles, translation: "unavailable" };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function loadNews(lang: Lang, refresh = false): Promise<NbaNewsResponse> {
+  const cached = translationCache.get(lang);
+  if (!refresh && cached && cached.expiresAt > Date.now()) return cached.value;
+
+  const articles = await fetchNews(refresh);
+  const result = await translateArticles(articles, lang);
+  translationCache.set(lang, { expiresAt: Date.now() + 5 * 60_000, value: result });
+  return result;
 }
