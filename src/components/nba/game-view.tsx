@@ -342,10 +342,17 @@ function Recap({
 }
 
 function Clips({ clips, lang }: { clips: { id: string; title: string; thumbnail: string; url: string; duration: number; player: string | null; kind: "play" | "package" }[]; lang: Lang }) {
+  const heading = {
+    fr: "Vidéos YouTube",
+    en: "YouTube videos",
+    es: "Vídeos de YouTube",
+    tr: "YouTube videoları",
+    ar: "فيديوهات YouTube",
+    zh: "YouTube 视频",
+  }[lang];
   return (
     <section className="mt-6">
-      <h2 className="font-display text-2xl">{t(lang, "clips")}</h2>
-      <p className="mt-2 text-sm text-muted">{t(lang, "clipsNote")}</p>
+      <h2 className="font-display text-2xl">{heading}</h2>
       {clips.length === 0 && <p className="mt-3 text-sm text-muted">{t(lang, "clipsNone")}</p>}
       <ul className="mt-4 flex flex-col gap-3">
         {clips.map((clip) => (
