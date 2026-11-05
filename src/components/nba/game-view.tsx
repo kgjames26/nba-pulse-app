@@ -40,13 +40,13 @@ export function GameView({
   const detail = query.data?.ok ? query.data.detail : null;
   const game = detail?.game;
   const hidden = game ? resultsAreHidden(game.status, show) : false;
-  const kind = game?.status === "post" ? "recap" : game?.status === "pre" ? "duels" : null;
+  const kind = game?.status === "pre" ? "duels" : null;
   const narrative = useQuery({
-    queryKey: ["narrative", "tactic", id, lang, kind],
-    enabled: Boolean(kind) && (kind === "duels" || show),
+    queryKey: ["narrative", "duels", id, lang],
+    enabled: kind === "duels",
     retry: false,
-    staleTime: kind === "recap" ? Infinity : 3 * 60 * 60 * 1000,
-    queryFn: () => getNarrative({ data: { id, lang, kind: kind! } }),
+    staleTime: 3 * 60 * 60 * 1000,
+    queryFn: () => getNarrative({ data: { id, lang, kind: "duels" } }),
   });
 
   return (
@@ -95,11 +95,7 @@ export function GameView({
                 <Recap
                   lang={lang}
                   stat={statReading(lang, detail)}
-                  desk={narrative.data?.mode === "desk" ? narrative.data.text : ""}
-                  tactic={narrative.data?.mode === "desk" ? narrative.data.tactic ?? null : null}
                   pending={game.status !== "post"}
-                  tried={narrative.isFetched}
-                  fetching={narrative.isFetching}
                 />
                 <Clips clips={detail.clips} lang={lang} />
               </>
@@ -273,69 +269,35 @@ function Box({
 function Recap({
   lang,
   stat,
-  desk,
-  tactic,
   pending,
-  tried,
-  fetching,
 }: {
   lang: Lang;
   stat: ReturnType<typeof statReading>;
-  desk: string;
-  tactic: Tactic | null;
   pending: boolean;
-  tried: boolean;
-  fetching: boolean;
 }) {
-  const sourced = Boolean(tactic && tactic.worked && tactic.failed && tactic.sources.length);
+  const facts = stat.text.split(/(?<=[.!?])\\s+/).filter(Boolean);
   return (
-    <section className="mt-6">
+    <section className="mt-8">
       <h2 className="font-display text-2xl">{t(lang, "recap")}</h2>
-      {pending && <p className="mt-3 text-sm text-muted">{t(lang, "comingSoonRecap")}</p>}
-      {!pending && (
-        <>
-          <p className="mt-2 text-xs uppercase tracking-widest text-accent">
-            {sourced ? t(lang, "tacticLabel") : desk ? t(lang, "deskLabel") : t(lang, "statLabel")}
-          </p>
-          {sourced && <p className="mt-2 text-sm text-muted">{t(lang, "tacticByline")}</p>}
-          {fetching && !sourced && <p className="mt-2 text-sm text-muted">{t(lang, "tacticPending")}</p>}
-          {stat.scoreLine && <p dir="ltr" className="mt-3 font-display text-2xl">{stat.scoreLine}</p>}
-          {sourced && tactic ? (
-            <>
-              {tactic.lead && <p className="mt-3 text-base leading-relaxed">{tactic.lead}</p>}
-              <div className="mt-4 flex flex-col gap-3">
-                <article className="rounded-card border border-line bg-surface p-4">
-                  <p className="text-xs uppercase tracking-widest text-accent">{t(lang, "workedKicker")}</p>
-                  <h3 dir="ltr" className="mt-1 font-display text-2xl">{tactic.winner}</h3>
-                  <p className="mt-2 text-sm leading-relaxed">{tactic.worked}</p>
-                </article>
-                <article className="rounded-card border border-line bg-surface p-4">
-                  <p className="text-xs uppercase tracking-widest text-muted">{t(lang, "failedKicker")}</p>
-                  <h3 dir="ltr" className="mt-1 font-display text-2xl">{tactic.loser}</h3>
-                  <p className="mt-2 text-sm leading-relaxed">{tactic.failed}</p>
-                </article>
-              </div>
-              <h3 className="mt-5 text-xs uppercase tracking-widest text-faint">{t(lang, "sourcesLabel")}</h3>
-              <ul className="mt-2 flex flex-col gap-2">
-                {tactic.sources.map((source) => (
-                  <li key={source.url}>
-                    <a href={source.url} target="_blank" rel="noreferrer" className="block rounded-xl border border-line bg-raised px-3 py-3">
-                      <span className="block text-sm text-fg">{source.title}</span>
-                      <span dir="ltr" className="mt-1 block text-xs text-faint">{sourceHost(source.url)}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 text-xs text-faint">{t(lang, "tacticDisclaimer")}</p>
-            </>
-          ) : (
-            <>
-              <p className="mt-3 text-base leading-relaxed">{desk || stat.text}</p>
-              <p className="mt-3 text-xs text-faint">{t(lang, "sourceFeed")}</p>
-              {tried && !desk && !fetching && <p className="mt-1 text-xs text-faint">{t(lang, "noAi")}</p>}
-            </>
+      {pending ? (
+        <p className="mt-4 text-sm text-muted">{t(lang, "comingSoonRecap")}</p>
+      ) : (
+        <div className="mt-5 flex flex-col gap-4">
+          {stat.scoreLine && (
+            <div dir="ltr" className="rounded-card border border-line bg-surface px-5 py-5">
+              <p className="font-display text-2xl tabular-nums leading-tight">{stat.scoreLine}</p>
+            </div>
           )}
-        </>
+          {facts.length > 0 && (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {facts.map((fact, index) => (
+                <li key={index} className="rounded-card border border-line bg-surface px-4 py-4 text-sm leading-relaxed sm:px-5 sm:py-5">
+                  {fact}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
     </section>
   );
