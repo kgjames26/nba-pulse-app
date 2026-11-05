@@ -182,6 +182,7 @@ function Desk() {
             show={showResultsFor(spoilers, revealedIds, gameId)}
             onBack={() => setGameId(null)}
             onReveal={() => reveal(gameId)}
+            onSettings={() => setSettingsOpen(true)}
           />
         ) : (
           <div className="hidden min-h-screen place-items-center px-8 lg:grid">
