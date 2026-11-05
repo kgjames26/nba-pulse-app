@@ -3,6 +3,7 @@ import { broadcastIsNational } from "./rank.ts";
 import { cssColor, darkLogo, franchiseById, titleWeight, UNKNOWN_COLOR } from "./teams.ts";
 import type {
   Clip,
+  CupStage,
   GameCard,
   GameDetail,
   GameStatus,
@@ -580,4 +581,37 @@ export async function loadStandings(): Promise<Standings> {
     west: west.rows,
     fetchedAt: new Date().toISOString(),
   };
+}
+
+
+export type CupFeedGame = { game: GameCard; stage: CupStage; note: string };
+
+function cupStageFromNote(note: string): CupStage | null {
+  const value = note.toLowerCase();
+  if (!/nba cup|emirates cup|in-season tournament/.test(value)) return null;
+  if (/championship|champion/.test(value)) return "final";
+  if (/semifinal|semi-final/.test(value)) return "semifinal";
+  if (/quarterfinal|quarter-final/.test(value)) return "quarterfinal";
+  if (/group play/.test(value)) return "group";
+  return null;
+}
+
+export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
+  const from = String(seasonYear) + "1001";
+  const to = String(seasonYear) + "1231";
+  const body = obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=1000`, 60_000));
+  if (!body) throw new Error("feed");
+  return arr(body.events).flatMap((event) => {
+    const row = obj(event);
+    const comp = obj(arr(row?.competitions)[0]);
+    if (!row || !comp) return [];
+    const notes = arr(comp.notes).flatMap((item) => {
+      const note = obj(item);
+      return [str(note?.headline), str(note?.description)].filter(Boolean);
+    });
+    const noteText = [...notes, str(comp.note), str(row.name)].join(" · ");
+    const stage = cupStageFromNote(noteText);
+    const game = eventToGame(event);
+    return stage && game ? [{ game, stage, note: noteText }] : [];
+  });
 }
