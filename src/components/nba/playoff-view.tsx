@@ -211,6 +211,8 @@ export function PlayoffView({
                     <MatchCard
                       key={index}
                       label={`${copy.game} ${index + 1}`}
+                      seedA={a}
+                      seedB={b}
                       a={rows[a - 1]}
                       b={rows[b - 1]}
                       score={readSeriesScore(rows[a - 1], rows[b - 1], scores, copy.tbd)}
@@ -233,6 +235,8 @@ export function PlayoffView({
                       <MatchCard
                         key={index}
                         label={`${copy.game} ${index + 1}`}
+                        seedA={a}
+                        seedB={b}
                         a={rows[a - 1]}
                         b={rows[b - 1]}
                         score={readSeriesScore(rows[a - 1], rows[b - 1], scores, copy.tbd)}
@@ -288,8 +292,10 @@ function Round({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function MatchCard({ label, a, b, score, lang }: {
+function MatchCard({ label, seedA, seedB, a, b, score, lang }: {
   label: string;
+  seedA: number;
+  seedB: number;
   a: StandingRow | undefined;
   b: StandingRow | undefined;
   score: string;
@@ -299,9 +305,9 @@ function MatchCard({ label, a, b, score, lang }: {
     <article className="rounded-2xl border border-line bg-bg px-3 py-3">
       <p className="text-[10px] uppercase tracking-[0.15em] text-faint">{label}</p>
       <div className="mt-2 flex items-center gap-3">
-        <TeamLine seed={1} row={a} lang={lang} />
+        <TeamLine seed={seedA} row={a} lang={lang} />
         <p dir="ltr" className="shrink-0 font-display text-xl tabular-nums">{score}</p>
-        <TeamLine seed={8} row={b} lang={lang} />
+        <TeamLine seed={seedB} row={b} lang={lang} />
       </div>
     </article>
   );
