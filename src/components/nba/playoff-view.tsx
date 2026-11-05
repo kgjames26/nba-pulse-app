@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Trophy } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { formatTip } from "@/lib/nba/dates";
 import { getPlayoffScores, getStandings } from "@/lib/nba/api";
@@ -226,11 +227,23 @@ export function PlayoffView({
                     <SlotMatch key={index} label={`${copy.game} ${index + 5}`} left={pair[0]} right={pair[1]} score={copy.tbd} tone="violet" />
                   ))}
                 </Round>
-                <Round title={copy.conferenceFinal} tone="amber">
+                <Round
+                  title={copy.conferenceFinal}
+                  tone="amber"
+                  headerAdornment={
+                    <ConferenceChampionBadge
+                      label={conference === "east" ? copy.eastChampion : copy.westChampion}
+                      conference={conference}
+                    />
+                  }
+                >
                   <SlotMatch label={`${copy.game} 7`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="amber" />
                 </Round>
                 <section className="rounded-card border border-fuchsia-400/30 bg-fuchsia-400/[0.035] p-4 sm:p-5">
-                  <h2 className="font-display text-xl text-fuchsia-200">{copy.nbaFinal}</h2>
+                  <h2 className="flex items-center gap-2 font-display text-xl text-fuchsia-200">
+                    <Trophy aria-hidden="true" className="size-6 shrink-0" />
+                    {copy.nbaFinal}
+                  </h2>
                   <div className="mt-3">
                     <SlotMatch label={copy.nbaFinal} left={copy.eastChampion} right={copy.westChampion} score={copy.tbd} tone="fuchsia" />
                   </div>
@@ -297,13 +310,29 @@ const TONE_CLASSES: Record<RoundTone, { section: string; card: string; heading: 
   emerald: { section: "border-emerald-400/30 bg-emerald-400/[0.035]", card: "border-emerald-400/25", heading: "text-emerald-200", score: "text-emerald-100" },
 };
 
-function Round({ title, tone, children }: { title: string; tone: RoundTone; children: ReactNode }) {
+function Round({ title, tone, children, headerAdornment }: { title: string; tone: RoundTone; children: ReactNode; headerAdornment?: ReactNode }) {
   const colors = TONE_CLASSES[tone];
   return (
     <section className={`rounded-card border p-4 sm:p-5 ${colors.section}`}>
-      <h2 className={`font-display text-xl ${colors.heading}`}>{title}</h2>
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <h2 className={`min-w-0 font-display text-xl ${colors.heading}`}>{title}</h2>
+        {headerAdornment}
+      </div>
       <div className="mt-3 flex flex-col gap-3">{children}</div>
     </section>
+  );
+}
+
+function ConferenceChampionBadge({ label, conference }: { label: string; conference: Conference }) {
+  return (
+    <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 py-1 ps-1.5 pe-2 text-[10px] font-semibold uppercase tracking-wide text-amber-100">
+      <svg aria-hidden="true" viewBox="0 0 48 36" className="size-7">
+        <path d="M5 22c1-9 9-16 20-17l15 15c-7 2-15 4-25 4-4 0-7-.5-10-2Z" fill="#fbbf24" fillOpacity=".8" stroke="#fde68a" strokeWidth="1.5" />
+        <path d="M4 23c10 1 22-1 37-4 2 2 3 4 3 6-11 5-26 7-37 3-2-1-3-3-3-5Z" fill="#d97706" stroke="#fde68a" strokeWidth="1.5" />
+        <text x="24" y="20" textAnchor="middle" fontSize="6" fontWeight="800" fill="#422006">{conference === "east" ? "EST" : "OUEST"}</text>
+      </svg>
+      <span className="max-w-24 leading-tight normal-case">{label}</span>
+    </div>
   );
 }
 
