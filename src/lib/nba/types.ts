@@ -58,6 +58,7 @@ export type Clip = {
   duration: number;
   player: string | null;
   kind: "play" | "package";
+  category?: "highlights" | "recap";
 };
 
 export type OddsView = {
