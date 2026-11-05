@@ -34,13 +34,13 @@ export function SectionNav({
   ];
 
   return (
-    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex flex-wrap items-center justify-end gap-2">
+    <nav aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"} className="flex shrink-0 flex-nowrap items-center justify-end gap-1.5">
       {actions.filter(({ key }) => key !== active).map(({ key, onClick }) => (
         <button
           key={key}
           type="button"
           onClick={onClick}
-          className="min-h-11 rounded-full border border-line px-3 text-sm transition-colors hover:bg-surface"
+          className="min-h-10 whitespace-nowrap rounded-full border border-line px-2.5 text-xs transition-colors hover:bg-surface sm:px-3 sm:text-sm"
         >
           {LABELS[lang][key]}
         </button>
@@ -50,7 +50,7 @@ export function SectionNav({
         onClick={onSettings}
         aria-label={t(lang, "settings")}
         title={t(lang, "settings")}
-        className="grid size-11 shrink-0 place-items-center rounded-full border border-line transition-colors hover:bg-surface"
+        className="grid size-10 shrink-0 place-items-center rounded-full border border-line transition-colors hover:bg-surface"
       >
         <Settings aria-hidden="true" className="size-5" />
       </button>
