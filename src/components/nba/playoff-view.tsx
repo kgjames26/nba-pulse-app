@@ -161,7 +161,7 @@ export function PlayoffView({
           <p className="font-display text-2xl tracking-wide">
           NBA <span className="text-accent">PULSE</span>
         </p>
-        <div className="mt-4 max-w-full overflow-x-auto pb-1">
+        <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
           <SectionNav
             active="playoff"
             lang={lang}
