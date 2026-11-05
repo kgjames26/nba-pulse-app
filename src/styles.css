@@ -99,127 +99,72 @@
   background: #07080a;
   pointer-events: auto;
 }
-
-.nba-intro__scene {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.intro-wordmark {
-  opacity: 0;
-  animation: intro-wordmark 3.3s ease-out forwards;
-}
-
-.intro-attacker {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: intro-dunk 2.1s cubic-bezier(.2,.75,.14,1) forwards;
-}
-
-.intro-wemby {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: intro-block 2.1s cubic-bezier(.14,.8,.12,1) forwards;
-}
-
-.intro-shooting-arm {
-  animation: intro-shooting-arm 2.1s cubic-bezier(.2,.75,.14,1) forwards;
-}
-
-.intro-block-arm {
-  animation: intro-block-arm 2.1s cubic-bezier(.14,.8,.12,1) forwards;
-}
-
-.intro-ball {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: intro-ball 2.35s cubic-bezier(.12,.82,.18,1) forwards;
-}
-
-.intro-impact,
-.intro-impact-rays {
-  opacity: 0;
-  animation: intro-impact 3.3s ease-out forwards;
-}
-
-.intro-glass {
-  opacity: 0;
-  animation: intro-fracture 3.3s ease-out forwards;
-}
-
-.intro-crack {
-  stroke-dasharray: 780;
-  stroke-dashoffset: 780;
-  animation: intro-crack 3.3s ease-out forwards;
-}
-
-.intro-shard {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: intro-shard-burst 900ms cubic-bezier(.12,.7,.18,1) 2.15s forwards;
-}
+.nba-intro__scene { display: block; width: 100%; height: 100%; }
+.intro-wordmark { opacity: 0; animation: intro-wordmark 3.2s ease-out forwards; }
+.intro-attacker { transform-box: fill-box; transform-origin: center; animation: intro-dunk 2.45s cubic-bezier(.12,.8,.16,1) forwards; }
+.intro-wemby { transform-box: fill-box; transform-origin: center; animation: intro-block 2.45s cubic-bezier(.14,.82,.12,1) forwards; }
+.intro-shooting-arm { animation: intro-shooting-arm 2.45s cubic-bezier(.12,.8,.16,1) forwards; }
+.intro-block-arm { animation: intro-block-arm 2.45s cubic-bezier(.14,.82,.12,1) forwards; }
+.intro-ball { transform-box: fill-box; transform-origin: center; animation: intro-ball 2.6s cubic-bezier(.12,.82,.18,1) forwards; }
+.intro-impact, .intro-impact-rays { opacity: 0; animation: intro-impact 3.2s ease-out forwards; }
+.intro-glass { opacity: 0; animation: intro-fracture 3.2s ease-out forwards; }
+.intro-crack { stroke-dasharray: 780; stroke-dashoffset: 780; animation: intro-crack 3.2s ease-out forwards; }
+.intro-shard { transform-box: fill-box; transform-origin: center; animation: intro-shard-burst 850ms cubic-bezier(.12,.7,.18,1) 2.18s forwards; }
 
 @keyframes intro-dunk {
-  0%, 14% { transform: translate(0, 0) scale(1); }
-  35% { transform: translate(24px, -28px) scale(1.02); }
-  72% { transform: translate(145px, -205px) scale(1.04); }
-  82% { transform: translate(153px, -211px) scale(1.04); }
-  100% { transform: translate(156px, -198px) scale(.98); }
+  0% { transform: translate(-82px, 105px) scale(.14); opacity: .2; }
+  16% { transform: translate(-56px, 68px) scale(.34); opacity: 1; }
+  53% { transform: translate(12px, 12px) scale(.75); }
+  76% { transform: translate(154px, -192px) scale(1.05); }
+  83% { transform: translate(160px, -201px) scale(1.08); }
+  100% { transform: translate(155px, -194px) scale(1.03); }
 }
-
 @keyframes intro-block {
-  0%, 22% { transform: translate(-95px, 10px); }
-  48% { transform: translate(-48px, -38px); }
-  76% { transform: translate(110px, -140px); }
-  82% { transform: translate(114px, -147px) scale(1.03); }
-  100% { transform: translate(112px, -135px); }
+  0%, 20% { transform: translate(95px, 35px) scale(.78); }
+  48% { transform: translate(55px, 15px) scale(.9); }
+  75% { transform: translate(2px, -76px) scale(1.04); }
+  82% { transform: translate(0, -85px) scale(1.08); }
+  100% { transform: translate(0, -80px) scale(1.04); }
 }
-
 @keyframes intro-shooting-arm {
-  0%, 35% { transform: rotate(0); }
-  72%, 82% { transform: rotate(-10deg); }
+  0%, 47% { transform: rotate(0); }
+  68% { transform: rotate(-15deg); }
+  78%, 84% { transform: rotate(-28deg); }
   100% { transform: rotate(-18deg); }
 }
-
 @keyframes intro-block-arm {
-  0%, 48% { transform: rotate(0); }
-  76%, 84% { transform: rotate(-10deg); }
-  100% { transform: rotate(2deg); }
+  0%, 35% { transform: rotate(0); }
+  67% { transform: rotate(-12deg); }
+  78%, 85% { transform: rotate(-27deg); }
+  100% { transform: rotate(-20deg); }
 }
-
 @keyframes intro-ball {
-  0%, 36% { transform: translate(0, 0) scale(1); }
-  67% { transform: translate(7px, -48px) scale(1.04); }
-  75% { transform: translate(-2px, -68px) scale(1.08); }
-  100% { transform: translate(-142px, -92px) rotate(-145deg) scale(.84); }
+  0%, 44% { transform: translate(-10px, 74px) scale(.62); }
+  68% { transform: translate(-2px, 6px) scale(.94); }
+  77% { transform: translate(2px, -5px) scale(1.08); }
+  100% { transform: translate(-8px, -12px) scale(.95); }
 }
-
 @keyframes intro-impact {
-  0%, 70% { opacity: 0; transform: scale(.2); }
-  74% { opacity: .95; transform: scale(1.35); }
-  80% { opacity: .25; transform: scale(1.8); }
+  0%, 73% { opacity: 0; transform: scale(.2); }
+  77% { opacity: .95; transform: scale(1.35); }
+  83% { opacity: .25; transform: scale(1.8); }
   100% { opacity: 0; transform: scale(2.2); }
 }
-
 @keyframes intro-crack {
-  0%, 68% { stroke-dashoffset: 780; opacity: 0; }
-  75% { stroke-dashoffset: 0; opacity: 1; }
+  0%, 72% { stroke-dashoffset: 780; opacity: 0; }
+  79% { stroke-dashoffset: 0; opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 0; }
 }
-
 @keyframes intro-fracture {
-  0%, 68% { opacity: 0; }
-  75% { opacity: 1; }
+  0%, 72% { opacity: 0; }
+  79% { opacity: 1; }
   100% { opacity: 0; }
 }
-
 @keyframes intro-shard-burst {
   from { opacity: 0; transform: translate(0, 0) rotate(0) scale(1); }
   18% { opacity: 1; }
   to { opacity: 0; transform: translate(var(--shard-x), var(--shard-y)) rotate(14deg) scale(.88); }
 }
-
 @keyframes intro-wordmark {
   0%, 68% { opacity: 0; transform: translateY(8px); }
   76%, 88% { opacity: 1; transform: translateY(0); }
