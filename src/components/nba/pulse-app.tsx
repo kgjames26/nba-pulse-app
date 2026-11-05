@@ -14,6 +14,7 @@ import { SlateView } from "./slate-view";
 import { StandingsView } from "./standings-view";
 import { NewsView } from "./news-view";
 import { PlayoffView } from "./playoff-view";
+import { CupView } from "./cup-view";
 import { Wordmark } from "./ui";
 
 export function PulseApp() {
@@ -69,6 +70,7 @@ function Desk() {
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
   const [playoffOpen, setPlayoffOpen] = useState(false);
+  const [cupOpen, setCupOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const date = addDaysYmd(anchor, offset);
   const client = useQueryClient();
@@ -82,13 +84,13 @@ function Desk() {
     function onKey(event: KeyboardEvent) {
       const target = event.target;
       if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
-      if (!onboarded || standingsOpen || newsOpen || playoffOpen || settingsOpen) return;
+      if (!onboarded || standingsOpen || newsOpen || playoffOpen || cupOpen || settingsOpen) return;
       if (event.key === "ArrowLeft") setOffset((value) => Math.max(-220, value - 1));
       if (event.key === "ArrowRight") setOffset((value) => Math.min(45, value + 1));
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onboarded, standingsOpen, newsOpen, playoffOpen, settingsOpen]);
+  }, [onboarded, standingsOpen, newsOpen, playoffOpen, cupOpen, settingsOpen]);
 
   const query = useQuery({
     queryKey: ["slate", date],
@@ -153,19 +155,23 @@ function Desk() {
         onRetry={() => void query.refetch()}
         onOpen={setGameId}
         onStandings={() => {
+          setCupOpen(false);
           setNewsOpen(false);
           setStandingsOpen(true);
         }}
         onNews={() => {
+          setCupOpen(false);
           setStandingsOpen(false);
           setPlayoffOpen(false);
           setNewsOpen(true);
         }}
         onPlayoff={() => {
+          setCupOpen(false);
           setStandingsOpen(false);
           setNewsOpen(false);
           setPlayoffOpen(true);
         }}
+        onCup={() => { setGameId(null); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
       />
       <div className={gameId ? "fixed inset-0 z-20 col-span-2 overflow-y-auto bg-bg lg:static lg:z-auto" : "col-span-2 hidden lg:block"}>
@@ -190,19 +196,23 @@ function Desk() {
         canSee={canSeeStandings}
         onUnlock={() => unlockStandings(etYmd())}
         onHome={() => {
+          setCupOpen(false);
           setStandingsOpen(false);
           setNewsOpen(false);
         }}
         onNews={() => {
+          setCupOpen(false);
           setStandingsOpen(false);
           setPlayoffOpen(false);
           setNewsOpen(true);
         }}
         onPlayoff={() => {
+          setCupOpen(false);
           setStandingsOpen(false);
           setNewsOpen(false);
           setPlayoffOpen(true);
         }}
+        onCup={() => { setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
       />
       {playoffOpen && (
@@ -212,20 +222,24 @@ function Desk() {
           canSee={canSeeStandings}
           onUnlock={() => unlockStandings(etYmd())}
           onScore={() => {
+            setCupOpen(false);
             setPlayoffOpen(false);
             setStandingsOpen(false);
             setNewsOpen(false);
           }}
           onStandings={() => {
+            setCupOpen(false);
             setPlayoffOpen(false);
             setNewsOpen(false);
             setStandingsOpen(true);
           }}
           onNews={() => {
+            setCupOpen(false);
             setPlayoffOpen(false);
             setStandingsOpen(false);
             setNewsOpen(true);
           }}
+          onCup={() => { setPlayoffOpen(false); setStandingsOpen(false); setNewsOpen(false); setCupOpen(true); }}
           onSettings={() => setSettingsOpen(true)}
         />
       )}
@@ -233,22 +247,37 @@ function Desk() {
         <NewsView
           lang={lang}
           onScore={() => {
+            setCupOpen(false);
             setNewsOpen(false);
             setStandingsOpen(false);
           }}
           onStandings={() => {
+            setCupOpen(false);
             setPlayoffOpen(false);
             setNewsOpen(false);
             setStandingsOpen(true);
           }}
           onPlayoff={() => {
+            setCupOpen(false);
             setNewsOpen(false);
             setStandingsOpen(false);
             setPlayoffOpen(true);
           }}
+          onCup={() => { setNewsOpen(false); setStandingsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
           onSettings={() => setSettingsOpen(true)}
         />
       )}
+      <CupView
+        lang={lang}
+        open={cupOpen}
+        canSee={canSeeStandings}
+        onUnlock={() => unlockStandings(etYmd())}
+        onScore={() => { setCupOpen(false); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); }}
+        onStandings={() => { setCupOpen(false); setNewsOpen(false); setPlayoffOpen(false); setStandingsOpen(true); }}
+        onNews={() => { setCupOpen(false); setStandingsOpen(false); setPlayoffOpen(false); setNewsOpen(true); }}
+        onPlayoff={() => { setCupOpen(false); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(true); }}
+        onSettings={() => setSettingsOpen(true)}
+      />
       <SettingsView
         open={settingsOpen}
         lang={lang}
@@ -268,6 +297,7 @@ function Desk() {
           setStandingsOpen(false);
           setNewsOpen(false);
           setPlayoffOpen(false);
+          setCupOpen(false);
         }}
       />
     </div>
