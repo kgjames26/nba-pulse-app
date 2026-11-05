@@ -167,20 +167,24 @@ export type CupTeamStanding = {
   pointDiff: number;
 };
 
+export type CupStage = "group" | "quarterfinal" | "semifinal" | "final";
+
 export type CupGroup = {
   conference: "east" | "west";
-  name: "A" | "B" | "C";
+  name: string;
   teams: CupTeamStanding[];
 };
 
 export type CupGame = {
-  conference: "east" | "west";
-  group: "A" | "B" | "C";
+  conference: "east" | "west" | "both";
+  group: string | null;
+  stage: CupStage;
   game: GameCard;
 };
 
 export type CupData = {
   season: string;
+  seasonYear: number;
   groupPlayDates: string[];
   games: CupGame[];
   groups: CupGroup[];
