@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { formatTip } from "@/lib/nba/dates";
 import { getNews } from "@/lib/nba/api";
 import { localeFor, t, type Lang } from "@/lib/nba/i18n";
 import { SectionNav } from "./section-nav";
@@ -90,7 +89,7 @@ export function NewsView({
                   {article.description && <p className="mt-2 line-clamp-3 text-sm text-muted">{article.description}</p>}
                   <p className="mt-3 text-xs text-faint">
                     {article.byline ? `${article.byline} · ` : ""}
-                    {article.published ? formatTip(article.published, localeFor(lang)) : "ESPN"}
+                    {formatPublished(article.published, localeFor(lang)) || "ESPN"}
                   </p>
                 </div>
               </a>
@@ -100,4 +99,16 @@ export function NewsView({
       </div>
     </main>
   );
+}
+
+function formatPublished(value: string, locale: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
