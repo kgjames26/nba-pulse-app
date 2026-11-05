@@ -159,7 +159,7 @@ export function PlayoffView({
       <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
         <PageHeader
         active="playoff"
-        title={{copy.title}}
+        title={copy.title}
         lang={lang}
         onScore={onScore}
         onStandings={onStandings}
