@@ -13,6 +13,7 @@ import { SettingsView } from "./settings-view";
 import { SlateView } from "./slate-view";
 import { StandingsView } from "./standings-view";
 import { NewsView } from "./news-view";
+import { PlayoffView } from "./playoff-view";
 import { Wordmark } from "./ui";
 
 export function PulseApp() {
@@ -67,6 +68,7 @@ function Desk() {
   const [gameId, setGameId] = useState<string | null>(null);
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
+  const [playoffOpen, setPlayoffOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const date = addDaysYmd(anchor, offset);
   const client = useQueryClient();
@@ -80,13 +82,13 @@ function Desk() {
     function onKey(event: KeyboardEvent) {
       const target = event.target;
       if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
-      if (!onboarded || standingsOpen || newsOpen || settingsOpen) return;
+      if (!onboarded || standingsOpen || newsOpen || playoffOpen || settingsOpen) return;
       if (event.key === "ArrowLeft") setOffset((value) => Math.max(-220, value - 1));
       if (event.key === "ArrowRight") setOffset((value) => Math.min(45, value + 1));
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onboarded, standingsOpen, newsOpen, settingsOpen]);
+  }, [onboarded, standingsOpen, newsOpen, playoffOpen, settingsOpen]);
 
   const query = useQuery({
     queryKey: ["slate", date],
@@ -156,7 +158,13 @@ function Desk() {
         }}
         onNews={() => {
           setStandingsOpen(false);
+          setPlayoffOpen(false);
           setNewsOpen(true);
+        }}
+        onPlayoff={() => {
+          setStandingsOpen(false);
+          setNewsOpen(false);
+          setPlayoffOpen(true);
         }}
         onSettings={() => setSettingsOpen(true)}
       />
@@ -187,10 +195,40 @@ function Desk() {
         }}
         onNews={() => {
           setStandingsOpen(false);
+          setPlayoffOpen(false);
           setNewsOpen(true);
+        }}
+        onPlayoff={() => {
+          setStandingsOpen(false);
+          setNewsOpen(false);
+          setPlayoffOpen(true);
         }}
         onSettings={() => setSettingsOpen(true)}
       />
+      {playoffOpen && (
+        <PlayoffView
+          lang={lang}
+          open={playoffOpen}
+          canSee={canSeeStandings}
+          onUnlock={() => unlockStandings(etYmd())}
+          onScore={() => {
+            setPlayoffOpen(false);
+            setStandingsOpen(false);
+            setNewsOpen(false);
+          }}
+          onStandings={() => {
+            setPlayoffOpen(false);
+            setNewsOpen(false);
+            setStandingsOpen(true);
+          }}
+          onNews={() => {
+            setPlayoffOpen(false);
+            setStandingsOpen(false);
+            setNewsOpen(true);
+          }}
+          onSettings={() => setSettingsOpen(true)}
+        />
+      )}
       {newsOpen && (
         <NewsView
           lang={lang}
@@ -199,8 +237,14 @@ function Desk() {
             setStandingsOpen(false);
           }}
           onStandings={() => {
+            setPlayoffOpen(false);
             setNewsOpen(false);
             setStandingsOpen(true);
+          }}
+          onPlayoff={() => {
+            setNewsOpen(false);
+            setStandingsOpen(false);
+            setPlayoffOpen(true);
           }}
           onSettings={() => setSettingsOpen(true)}
         />
@@ -223,6 +267,7 @@ function Desk() {
           setGameId(null);
           setStandingsOpen(false);
           setNewsOpen(false);
+          setPlayoffOpen(false);
         }}
       />
     </div>

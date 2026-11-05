@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { formatTip } from "@/lib/nba/dates";
 import { getStandings } from "@/lib/nba/api";
 import { localeFor, phaseLabel, t, type Lang } from "@/lib/nba/i18n";
@@ -7,6 +7,15 @@ import type { StandingRow } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
 import { SectionNav } from "./section-nav";
+
+const PLAY_IN_LABEL: Record<Lang, string> = {
+  fr: "Play-in · places 7 à 10",
+  en: "Play-in · seeds 7–10",
+  es: "Play-in · puestos 7–10",
+  tr: "Play-in · 7–10. sıralar",
+  ar: "الملحق · المراكز ٧–١٠",
+  zh: "附加赛 · 第 7–10 名",
+};
 
 export function StandingsView({
   lang,
@@ -16,6 +25,7 @@ export function StandingsView({
   onUnlock,
   onHome,
   onNews,
+  onPlayoff,
   onSettings,
 }: {
   lang: Lang;
@@ -25,6 +35,7 @@ export function StandingsView({
   onUnlock: () => void;
   onHome: () => void;
   onNews: () => void;
+  onPlayoff: () => void;
   onSettings: () => void;
 }) {
   const [side, setSide] = useState<"east" | "west">("east");
@@ -49,6 +60,7 @@ export function StandingsView({
             onScore={onHome}
             onStandings={() => undefined}
             onNews={onNews}
+            onPlayoff={onPlayoff}
             onSettings={onSettings}
           />
         </header>
@@ -92,7 +104,15 @@ export function StandingsView({
             )}
             <ol className="mt-4 flex flex-col gap-2">
               {rows.map((row, index) => (
-                <Row key={row.id} row={row} index={index} lang={lang} favorite={favoriteIds.includes(row.id)} />
+                <Fragment key={row.id}>
+                  {index === 6 && (
+                    <li aria-hidden="true" className="flex items-center gap-2 px-1 pt-3 text-[10px] uppercase tracking-[0.16em] text-accent">
+                      <span>{PLAY_IN_LABEL[lang]}</span>
+                      <span className="h-px flex-1 bg-line" />
+                    </li>
+                  )}
+                  <Row row={row} index={index} lang={lang} favorite={favoriteIds.includes(row.id)} inPlayIn={index >= 6 && index <= 9} />
+                </Fragment>
               ))}
             </ol>
           </>
@@ -102,10 +122,10 @@ export function StandingsView({
   );
 }
 
-function Row({ row, index, lang, favorite }: { row: StandingRow; index: number; lang: Lang; favorite: boolean }) {
+function Row({ row, index, lang, favorite, inPlayIn }: { row: StandingRow; index: number; lang: Lang; favorite: boolean; inPlayIn: boolean }) {
   const streak = localStreak(row.streak, lang);
   return (
-    <li className={`flex items-center gap-3 rounded-card border px-3 py-3 ${favorite ? "border-accent bg-raised" : "border-line bg-surface"}`}>
+    <li className={`flex items-center gap-3 rounded-card border px-3 py-3 ${inPlayIn ? "border-s-2 border-s-accent bg-raised" : favorite ? "border-accent bg-raised" : "border-line bg-surface"}`}>
       <span className="w-6 font-display text-xl text-faint">{index + 1}</span>
       <TeamMark abbr={row.abbr} color={UNKNOWN_COLOR} sources={[row.logo]} />
       <span className="min-w-0 flex-1">

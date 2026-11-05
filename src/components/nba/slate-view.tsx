@@ -28,6 +28,7 @@ export function SlateView({
   onOpen,
   onStandings,
   onNews,
+  onPlayoff,
   onSettings,
 }: {
   lang: Lang;
@@ -43,6 +44,7 @@ export function SlateView({
   onOpen: (id: string) => void;
   onStandings: () => void;
   onNews: () => void;
+  onPlayoff: () => void;
   onSettings: () => void;
 }) {
   const locale = localeFor(lang);
@@ -81,6 +83,7 @@ export function SlateView({
             onScore={() => undefined}
             onStandings={onStandings}
             onNews={onNews}
+            onPlayoff={onPlayoff}
             onSettings={onSettings}
           />
         </div>
