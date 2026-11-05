@@ -61,7 +61,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
           </p>
           <SettingsButton lang={lang} onClick={onSettings} />
         </div>
-        <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
+        <div className="mt-4 max-w-full overflow-x-auto py-2">
           <SectionNav active="cup" lang={lang} onScore={onScore} onStandings={onStandings} onNews={onNews} onPlayoff={onPlayoff} onCup={() => undefined} />
         </div>
         <div className="mt-5 border-s-4 border-accent ps-4">
