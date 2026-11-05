@@ -138,7 +138,7 @@ function Desk() {
   const canSeeStandings = spoilers || standingsUnlockedOn === etYmd();
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl overflow-x-hidden lg:grid lg:grid-cols-3">
+    <div className="mx-auto min-h-screen max-w-6xl overflow-x-clip lg:grid lg:grid-cols-3">
       <SlateView
         lang={lang}
         date={date}
