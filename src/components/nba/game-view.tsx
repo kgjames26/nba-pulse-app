@@ -56,7 +56,7 @@ export function GameView({
           <ChevronLeft className="size-5 rtl:rotate-180" />
           <span className="sr-only">{t(lang, "back")}</span>
         </button>
-        <p className="font-display text-xl tracking-wide">
+        <p className="font-display text-2xl tracking-wide">
           NBA <span className="text-accent">PULSE</span>
         </p>
       </header>
@@ -246,7 +246,8 @@ function Box({
               <tbody>
                 {starters.length > 0 && <tr><th colSpan={11} className="bg-raised/60 px-2 py-2 text-start text-[10px] font-semibold uppercase tracking-widest text-accent">{PLAYER_GROUP_LABELS[lang].starters}</th></tr>}
                 {starters.map((player) => <PlayerRow key={player.id || player.name} player={player} top={top} lang={lang} starter />)}
-                {bench.length > 0 && starters.length > 0 && <tr><th colSpan={11} className="border-t-2 border-line bg-bg px-2 py-2 text-start text-[10px] font-semibold uppercase tracking-widest text-faint">{PLAYER_GROUP_LABELS[lang].bench}</th></tr>}
+                {bench.length > 0 && starters.length > 0 && <tr aria-hidden="true"><td colSpan={11} className="h-0.5 bg-accent/45 p-0" /></tr>}
+                {bench.length > 0 && starters.length > 0 && <tr><th colSpan={11} className="bg-bg px-2 py-2 text-start text-[10px] font-semibold uppercase tracking-widest text-faint">{PLAYER_GROUP_LABELS[lang].bench}</th></tr>}
                 {bench.map((player) => <PlayerRow key={player.id || player.name} player={player} top={top} lang={lang} />)}
               </tbody>
             </table>
