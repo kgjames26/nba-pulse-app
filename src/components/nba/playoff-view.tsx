@@ -206,7 +206,7 @@ export function PlayoffView({
             )}
             {table && (
               <div dir="ltr" className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <Round title={copy.firstRound}>
+                <Round title={copy.firstRound} tone="cyan">
                   {teams.map(([a, b], index) => (
                     <MatchCard
                       key={index}
@@ -217,19 +217,26 @@ export function PlayoffView({
                       b={rows[b - 1]}
                       score={readSeriesScore(rows[a - 1], rows[b - 1], scores, copy.tbd)}
                       lang={lang}
+                      tone="cyan"
                     />
                   ))}
                 </Round>
-                <Round title={copy.semifinals}>
+                <Round title={copy.semifinals} tone="violet">
                   {[[`${copy.game} 1`, `${copy.game} 2`], [`${copy.game} 3`, `${copy.game} 4`]].map((pair, index) => (
-                    <SlotMatch key={index} label={`${copy.game} ${index + 5}`} left={pair[0]} right={pair[1]} score={copy.tbd} />
+                    <SlotMatch key={index} label={`${copy.game} ${index + 5}`} left={pair[0]} right={pair[1]} score={copy.tbd} tone="violet" />
                   ))}
                 </Round>
-                <Round title={copy.conferenceFinal}>
-                  <SlotMatch label={`${copy.game} 7`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} />
+                <Round title={copy.conferenceFinal} tone="amber">
+                  <SlotMatch label={`${copy.game} 7`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="amber" />
                 </Round>
-                <section className="rounded-card border border-line bg-surface p-4 sm:p-5">
-                  <h2 className="font-display text-xl">{copy.playIn}</h2>
+                <section className="rounded-card border border-fuchsia-400/30 bg-fuchsia-400/[0.035] p-4 sm:p-5">
+                  <h2 className="font-display text-xl text-fuchsia-200">{copy.nbaFinal}</h2>
+                  <div className="mt-3">
+                    <SlotMatch label={copy.nbaFinal} left={copy.eastChampion} right={copy.westChampion} score={copy.tbd} tone="fuchsia" />
+                  </div>
+                </section>
+                <section className="rounded-card border border-emerald-400/30 bg-emerald-400/[0.035] p-4 sm:p-5">
+                  <h2 className="font-display text-xl text-emerald-200">{copy.playIn}</h2>
                   <div className="mt-3 flex flex-col gap-3">
                     {[[7, 8], [9, 10]].map(([a, b], index) => (
                       <MatchCard
@@ -241,14 +248,11 @@ export function PlayoffView({
                         b={rows[b - 1]}
                         score={readSeriesScore(rows[a - 1], rows[b - 1], scores, copy.tbd)}
                         lang={lang}
+                        tone="emerald"
                       />
                     ))}
-                    <SlotMatch label={`${copy.game} 3`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} />
+                    <SlotMatch label={`${copy.game} 3`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="emerald" />
                   </div>
-                </section>
-                <section className="rounded-card border border-line bg-surface p-4 sm:p-5">
-                  <h2 className="font-display text-xl">{copy.nbaFinal}</h2>
-                  <SlotMatch label={copy.nbaFinal} left={copy.eastChampion} right={copy.westChampion} score={copy.tbd} />
                 </section>
               </div>
             )}
@@ -283,16 +287,27 @@ function readSeriesScore(
     : `${series.teamBWins}–${series.teamAWins}`;
 }
 
-function Round({ title, children }: { title: string; children: ReactNode }) {
+type RoundTone = "cyan" | "violet" | "amber" | "fuchsia" | "emerald";
+
+const TONE_CLASSES: Record<RoundTone, { section: string; card: string; heading: string; score: string }> = {
+  cyan: { section: "border-cyan-400/30 bg-cyan-400/[0.035]", card: "border-cyan-400/25", heading: "text-cyan-200", score: "text-cyan-100" },
+  violet: { section: "border-violet-400/30 bg-violet-400/[0.035]", card: "border-violet-400/25", heading: "text-violet-200", score: "text-violet-100" },
+  amber: { section: "border-amber-400/35 bg-amber-400/[0.04]", card: "border-amber-400/30", heading: "text-amber-200", score: "text-amber-100" },
+  fuchsia: { section: "border-fuchsia-400/30 bg-fuchsia-400/[0.035]", card: "border-fuchsia-400/25", heading: "text-fuchsia-200", score: "text-fuchsia-100" },
+  emerald: { section: "border-emerald-400/30 bg-emerald-400/[0.035]", card: "border-emerald-400/25", heading: "text-emerald-200", score: "text-emerald-100" },
+};
+
+function Round({ title, tone, children }: { title: string; tone: RoundTone; children: ReactNode }) {
+  const colors = TONE_CLASSES[tone];
   return (
-    <section className="rounded-card border border-line bg-surface p-4 sm:p-5">
-      <h2 className="font-display text-xl">{title}</h2>
+    <section className={`rounded-card border p-4 sm:p-5 ${colors.section}`}>
+      <h2 className={`font-display text-xl ${colors.heading}`}>{title}</h2>
       <div className="mt-3 flex flex-col gap-3">{children}</div>
     </section>
   );
 }
 
-function MatchCard({ label, seedA, seedB, a, b, score, lang }: {
+function MatchCard({ label, seedA, seedB, a, b, score, lang, tone }: {
   label: string;
   seedA: number;
   seedB: number;
@@ -300,13 +315,15 @@ function MatchCard({ label, seedA, seedB, a, b, score, lang }: {
   b: StandingRow | undefined;
   score: string;
   lang: Lang;
+  tone: RoundTone;
 }) {
+  const colors = TONE_CLASSES[tone];
   return (
-    <article className="rounded-2xl border border-line bg-bg px-3 py-3">
-      <p className="text-[10px] uppercase tracking-[0.15em] text-faint">{label}</p>
+    <article className={`rounded-2xl border bg-bg px-3 py-3 ${colors.card}`}>
+      <p className={`text-[10px] uppercase tracking-[0.15em] ${colors.heading}`}>{label}</p>
       <div className="mt-2 flex items-center gap-3">
         <TeamLine seed={seedA} row={a} lang={lang} />
-        <p dir="ltr" className="shrink-0 font-display text-xl tabular-nums">{score}</p>
+        <p dir="ltr" className={`shrink-0 font-display text-xl tabular-nums ${colors.score}`}>{score}</p>
         <TeamLine seed={seedB} row={b} lang={lang} />
       </div>
     </article>
@@ -327,13 +344,14 @@ function TeamLine({ seed, row, lang }: { seed: number; row: StandingRow | undefi
   );
 }
 
-function SlotMatch({ label, left, right, score }: { label: string; left: string; right: string; score: string }) {
+function SlotMatch({ label, left, right, score, tone }: { label: string; left: string; right: string; score: string; tone: RoundTone }) {
+  const colors = TONE_CLASSES[tone];
   return (
-    <article className="rounded-2xl border border-line bg-bg px-3 py-3">
-      <p className="text-[10px] uppercase tracking-[0.15em] text-faint">{label}</p>
+    <article className={`rounded-2xl border bg-bg px-3 py-3 ${colors.card}`}>
+      <p className={`text-[10px] uppercase tracking-[0.15em] ${colors.heading}`}>{label}</p>
       <div className="mt-2 flex items-center gap-3">
         <span className="min-w-0 flex-1 truncate text-xs text-faint">{left}</span>
-        <span dir="ltr" className="shrink-0 font-display text-xl tabular-nums text-faint">{score}</span>
+        <span dir="ltr" className={`shrink-0 font-display text-xl tabular-nums ${colors.score}`}>{score}</span>
         <span className="min-w-0 flex-1 truncate text-xs text-faint">{right}</span>
       </div>
     </article>
