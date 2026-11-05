@@ -5,7 +5,7 @@ import { localeFor, phaseLabel, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { presentGame, showResultsFor } from "@/lib/nba/present";
 import type { GameCard, Slate } from "@/lib/nba/types";
 import { IconButton, TeamMark } from "./ui";
-import { SectionNav } from "./section-nav";
+import { SectionNav, SettingsButton } from "./section-nav";
 
 const RELATION: Record<SlateRelation, "yesterday" | "todaySlate" | "upcomingSlate" | "archiveSlate"> = {
   yesterday: "yesterday",
@@ -75,9 +75,12 @@ export function SlateView({
       }}
     >
       <header className="sticky top-0 z-10 bg-bg/95 px-4 pb-3 pt-4 backdrop-blur">
-        <p className="font-display text-2xl tracking-wide">
-          NBA <span className="text-accent">PULSE</span>
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-display text-2xl tracking-wide">
+            NBA <span className="text-accent">PULSE</span>
+          </p>
+          <SettingsButton lang={lang} onClick={onSettings} />
+        </div>
         <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
           <SectionNav
             active="score"
@@ -87,7 +90,6 @@ export function SlateView({
             onNews={onNews}
             onPlayoff={onPlayoff}
             onCup={onCup}
-            onSettings={onSettings}
           />
         </div>
         <div dir="ltr" className="mt-5 flex items-end justify-between gap-2">
