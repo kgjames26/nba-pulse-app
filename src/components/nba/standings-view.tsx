@@ -52,7 +52,7 @@ export function StandingsView({
   const rows = side === "east" ? table?.east ?? [] : table?.west ?? [];
 
   return (
-    <div className="fixed inset-0 z-30 overflow-y-auto bg-bg">
+    <div className="fixed inset-0 z-30 overflow-x-hidden overflow-y-auto bg-bg">
       <div className="mx-auto min-h-screen max-w-xl px-3 pb-12 pt-4">
         <header className="border-b border-line pb-4">
           <div className="flex items-center justify-between gap-3">
