@@ -66,20 +66,6 @@ export function PageHeader({
   );
 }
 
-function SectionNav
-        active={active}
-        lang={lang}
-        onScore={onScore}
-        onStandings={onStandings}
-        onNews={onNews}
-        onPlayoff={onPlayoff}
-        onCup={onCup}
-      />
-      {children && <div className="mt-3">{children}</div>}
-    </header>
-  );
-}
-
 function SectionNav({
   active,
   lang,
@@ -116,7 +102,7 @@ function SectionNav({
           tabIndex={key === active ? -1 : undefined}
           className={key === active
             ? "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border-2 border-accent bg-accent px-0.5 py-1 text-center text-[8px] font-extrabold leading-tight text-accent-ink shadow-md shadow-accent/30 sm:px-1 sm:text-[10px] md:text-xs"
-            : "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border border-line px-0.5 py-1 text-center text-[9px] leading-tight transition-colors hover:bg-surface sm:px-1 sm:text-xs md:text-sm"}
+            : "flex min-h-10 min-w-0 items-center justify-center break-words rounded-full border border-line px-0.5 py-1 text-center text-[8px] leading-tight transition-colors hover:bg-surface sm:px-1 sm:text-[10px] md:text-xs"}
         >
           {LABELS[lang][key]}
         </button>
