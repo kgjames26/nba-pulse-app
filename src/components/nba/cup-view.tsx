@@ -56,7 +56,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
     <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
       <PageHeader
         active="cup"
-        title={{copy.title}}
+        title={copy.title}
         lang={lang}
         onScore={onScore}
         onStandings={onStandings}
