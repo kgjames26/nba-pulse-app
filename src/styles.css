@@ -91,82 +91,213 @@
   animation: pulse-rise 220ms ease;
 }
 
+
 .nba-intro {
   position: fixed;
   inset: 0;
   z-index: 100;
+  display: grid;
+  place-items: center;
   overflow: hidden;
-  background: #07080a;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(125, 65, 31, .3), transparent 47%),
+    radial-gradient(ellipse at 50% 115%, rgba(226, 177, 90, .12), transparent 46%),
+    #080807;
+  color: #f7f3ea;
   pointer-events: auto;
 }
-.nba-intro__scene { display: block; width: 100%; height: 100%; }
-.intro-wordmark { opacity: 0; animation: intro-wordmark 3.2s ease-out forwards; }
-.intro-attacker { transform-box: fill-box; transform-origin: center; animation: intro-dunk 2.45s cubic-bezier(.12,.8,.16,1) forwards; }
-.intro-wemby { transform-box: fill-box; transform-origin: center; animation: intro-block 2.45s cubic-bezier(.14,.82,.12,1) forwards; }
-.intro-shooting-arm { animation: intro-shooting-arm 2.45s cubic-bezier(.12,.8,.16,1) forwards; }
-.intro-block-arm { animation: intro-block-arm 2.45s cubic-bezier(.14,.82,.12,1) forwards; }
-.intro-ball { transform-box: fill-box; transform-origin: center; animation: intro-ball 2.6s cubic-bezier(.12,.82,.18,1) forwards; }
-.intro-impact, .intro-impact-rays { opacity: 0; animation: intro-impact 3.2s ease-out forwards; }
-.intro-glass { opacity: 0; animation: intro-fracture 3.2s ease-out forwards; }
-.intro-crack { stroke-dasharray: 780; stroke-dashoffset: 780; animation: intro-crack 3.2s ease-out forwards; }
-.intro-shard { transform-box: fill-box; transform-origin: center; animation: intro-shard-burst 850ms cubic-bezier(.12,.7,.18,1) 2.18s forwards; }
-
-@keyframes intro-dunk {
-  0% { transform: translate(-82px, 105px) scale(.14); opacity: .2; }
-  16% { transform: translate(-56px, 68px) scale(.34); opacity: 1; }
-  53% { transform: translate(12px, 12px) scale(.75); }
-  76% { transform: translate(154px, -192px) scale(1.05); }
-  83% { transform: translate(160px, -201px) scale(1.08); }
-  100% { transform: translate(155px, -194px) scale(1.03); }
+.nba-intro::before,
+.nba-intro::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
 }
-@keyframes intro-block {
-  0%, 20% { transform: translate(95px, 35px) scale(.78); }
-  48% { transform: translate(55px, 15px) scale(.9); }
-  75% { transform: translate(2px, -76px) scale(1.04); }
-  82% { transform: translate(0, -85px) scale(1.08); }
-  100% { transform: translate(0, -80px) scale(1.04); }
+.nba-intro::before {
+  inset: 0;
+  opacity: .13;
+  background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(transparent 2%, #000 30%, #000 80%, transparent);
 }
-@keyframes intro-shooting-arm {
-  0%, 47% { transform: rotate(0); }
-  68% { transform: rotate(-15deg); }
-  78%, 84% { transform: rotate(-28deg); }
-  100% { transform: rotate(-18deg); }
+.nba-intro::after {
+  inset: 16px;
+  border: 1px solid rgba(236, 193, 120, .2);
+  animation: intro-frame 3.4s ease-out both;
 }
-@keyframes intro-block-arm {
-  0%, 35% { transform: rotate(0); }
-  67% { transform: rotate(-12deg); }
-  78%, 85% { transform: rotate(-27deg); }
-  100% { transform: rotate(-20deg); }
+.intro-court {
+  position: absolute;
+  z-index: -1;
+  width: min(88vw, 1000px);
+  height: min(88vw, 1000px);
+  border: 1px solid rgba(232, 179, 105, .18);
+  border-radius: 50%;
+  box-shadow: 0 0 0 9vw rgba(232, 179, 105, .025), 0 0 0 18vw rgba(232, 179, 105, .018);
+  transform: translateY(-7%);
+  animation: intro-court 3.4s ease-out both;
 }
-@keyframes intro-ball {
-  0%, 44% { transform: translate(-10px, 74px) scale(.62); }
-  68% { transform: translate(-2px, 6px) scale(.94); }
-  77% { transform: translate(2px, -5px) scale(1.08); }
-  100% { transform: translate(-8px, -12px) scale(.95); }
+.intro-court::before,
+.intro-court::after {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(232, 179, 105, .15);
 }
-@keyframes intro-impact {
-  0%, 73% { opacity: 0; transform: scale(.2); }
-  77% { opacity: .95; transform: scale(1.35); }
-  83% { opacity: .25; transform: scale(1.8); }
-  100% { opacity: 0; transform: scale(2.2); }
+.intro-court::before { inset: 17%; border-radius: 50%; }
+.intro-court::after { left: 50%; top: -30%; bottom: -30%; border-width: 0 0 0 1px; }
+.intro-arena-lights {
+  position: absolute;
+  inset: -20% -50%;
+  z-index: -1;
+  background: conic-gradient(from 225deg at 50% 5%, transparent 0 18deg, rgba(255, 201, 124, .08) 22deg, transparent 32deg 54deg, rgba(255, 201, 124, .06) 61deg, transparent 76deg);
+  filter: blur(18px);
+  animation: intro-lights 3.4s ease-out both;
 }
-@keyframes intro-crack {
-  0%, 72% { stroke-dashoffset: 780; opacity: 0; }
-  79% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
+.intro-kicker {
+  position: absolute;
+  top: max(8vh, 42px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(248, 239, 223, .72);
+  font: 600 10px/1 var(--font-sans);
+  letter-spacing: .28em;
+  animation: intro-kicker 3.4s ease both;
 }
-@keyframes intro-fracture {
-  0%, 72% { opacity: 0; }
-  79% { opacity: 1; }
-  100% { opacity: 0; }
+.intro-kicker i,
+.intro-lockup__eyebrow span,
+.intro-lockup__rule i {
+  display: inline-block;
+  width: 25px;
+  height: 1px;
+  background: #e5a64f;
 }
-@keyframes intro-shard-burst {
-  from { opacity: 0; transform: translate(0, 0) rotate(0) scale(1); }
+.intro-art {
+  position: absolute;
+  top: 5%;
+  bottom: 20%;
+  left: 50%;
+  width: min(78vw, 690px);
+  transform: translateX(-50%);
+  animation: intro-art 3.4s cubic-bezier(.16,.76,.18,1) both;
+}
+.intro-art__player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 48px rgba(0,0,0,.78)) saturate(1.04);
+}
+.intro-art__ring {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 62%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(247, 182, 93, .34);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.intro-art__ring--one { animation: intro-ring 1.2s cubic-bezier(.1,.75,.2,1) 1.48s both; }
+.intro-art__ring--two { animation: intro-ring 1.2s cubic-bezier(.1,.75,.2,1) 1.58s both; }
+.intro-art__flash {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff0c6;
+  box-shadow: 0 0 22px 12px #efaa4d, 0 0 110px 60px rgba(239,170,77,.35);
+  opacity: 0;
+  animation: intro-flash 3.4s ease both;
+}
+.intro-lockup {
+  position: absolute;
+  bottom: max(8.5vh, 54px);
+  text-align: center;
+  animation: intro-lockup 3.4s ease both;
+}
+.intro-lockup__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  color: #f0bd69;
+  font: 700 9px/1 var(--font-sans);
+  letter-spacing: .32em;
+}
+.intro-lockup__eyebrow span { width: 18px; opacity: .75; }
+.intro-lockup__title {
+  color: #f5f1e8;
+  font: 800 clamp(38px, 10vw, 74px)/.92 var(--font-display);
+  letter-spacing: .035em;
+  text-shadow: 0 3px 26px rgba(0,0,0,.6);
+}
+.intro-lockup__title b { color: #e8ae5a; font-weight: inherit; }
+.intro-lockup__rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin-top: 12px;
+  color: rgba(245, 241, 232, .62);
+  font: 600 8px/1 var(--font-sans);
+  letter-spacing: .23em;
+}
+.intro-lockup__rule i { width: 34px; opacity: .55; }
+.intro-corner {
+  position: absolute;
+  bottom: 30px;
+  color: rgba(245, 241, 232, .4);
+  font: 600 8px/1.7 var(--font-sans);
+  letter-spacing: .16em;
+}
+.intro-corner b { color: rgba(245, 241, 232, .76); font-size: 10px; letter-spacing: .12em; }
+.intro-corner--left { left: 30px; }
+.intro-corner--right { right: 30px; text-align: right; }
+.intro-bottom {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(245, 241, 232, .36);
+  font: 600 7px/1 var(--font-sans);
+  letter-spacing: .22em;
+  writing-mode: vertical-rl;
+}
+.intro-bottom i { width: 1px; height: 32px; background: #d99845; }
+@keyframes intro-art {
+  0% { opacity: 0; transform: translate(-50%, 6vh) scale(.83); filter: blur(8px); }
   18% { opacity: 1; }
-  to { opacity: 0; transform: translate(var(--shard-x), var(--shard-y)) rotate(14deg) scale(.88); }
+  48% { transform: translate(-50%, 0) scale(1); filter: blur(0); }
+  70% { transform: translate(-50%, -1.2vh) scale(1.025); }
+  82% { transform: translate(-50%, -1.2vh) scale(1.025); }
+  100% { opacity: 0; transform: translate(-50%, -5vh) scale(1.08); filter: blur(5px); }
 }
-@keyframes intro-wordmark {
-  0%, 68% { opacity: 0; transform: translateY(8px); }
-  76%, 88% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-6px); }
+@keyframes intro-kicker { 0%, 12% { opacity: 0; transform: translateY(-10px); } 24%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
+@keyframes intro-lockup { 0%, 34% { opacity: 0; transform: translateY(22px); } 48%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(12px); } }
+@keyframes intro-flash { 0%, 46% { opacity: 0; transform: scale(.1); } 53% { opacity: .9; transform: scale(2.8); } 60%, 67% { opacity: .2; transform: scale(7); } 100% { opacity: 0; transform: scale(10); } }
+@keyframes intro-ring { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.3); } 28% { opacity: .9; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.65); } }
+@keyframes intro-court { 0%, 22% { opacity: 0; transform: translateY(-7%) scale(.82); } 40%, 78% { opacity: 1; transform: translateY(-7%) scale(1); } 100% { opacity: 0; transform: translateY(-7%) scale(1.12); } }
+@keyframes intro-lights { 0%, 15% { opacity: 0; } 35%, 62% { opacity: .95; } 100% { opacity: 0; } }
+@keyframes intro-frame { 0%, 74% { opacity: 0; transform: scale(.99); } 84% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.04); } }
+@media (min-aspect-ratio: 1/1) {
+  .intro-art { top: 2%; bottom: 15%; width: min(68vw, 630px); }
+  .intro-lockup { right: 10%; bottom: 42%; text-align: left; }
+  .intro-lockup__eyebrow, .intro-lockup__rule { justify-content: flex-start; }
+}
+@media (max-width: 480px) {
+  .intro-art { top: 8%; bottom: 20%; width: 94vw; }
+  .intro-lockup { bottom: 9vh; }
+  .intro-corner--left { left: 20px; }
+  .intro-corner--right { right: 20px; }
+  .intro-bottom { right: 14px; font-size: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nba-intro, .nba-intro * { animation-duration: .01ms !important; animation-delay: 0ms !important; }
 }
