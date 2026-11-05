@@ -91,8 +91,8 @@ export function NewsView({
       <div className="mx-auto min-h-screen max-w-3xl px-3 pb-12 pt-4">
         <PageHeader
         active="news"
-        title={{copy.title}}
-        subtitle={{copy.source}}
+        title={copy.title}
+        subtitle={copy.source}
         lang={lang}
         onScore={onScore}
         onStandings={onStandings}
