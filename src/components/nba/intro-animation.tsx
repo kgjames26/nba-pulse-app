@@ -20,7 +20,7 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
       <div className="intro-art">
         <img
           className="intro-art__player"
-          src="/nba-pulse-intro.webp"
+          src="/nba-pulse-intro.png"
           alt=""
           fetchPriority="high"
         />
