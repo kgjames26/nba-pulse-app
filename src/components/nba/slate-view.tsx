@@ -74,7 +74,7 @@ export function SlateView({
         if (origin.top <= 2 && dy > 96 && dy > Math.abs(dx) * 1.4) onStandings();
       }}
     >
-      <header className="sticky top-0 z-10 bg-bg/95 px-4 pb-3 pt-4 backdrop-blur">
+      <header className="sticky top-0 z-10 bg-bg/95 px-3 pb-3 pt-4 backdrop-blur">
         <div className="flex items-center justify-between gap-3">
           <p className="font-display text-2xl tracking-wide">
             NBA <span className="text-accent">PULSE</span>
