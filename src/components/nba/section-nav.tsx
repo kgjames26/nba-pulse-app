@@ -20,7 +20,6 @@ export function SectionNav({
   onNews,
   onPlayoff,
   onCup,
-  onSettings,
 }: {
   active: Section;
   lang: Lang;
@@ -29,7 +28,6 @@ export function SectionNav({
   onNews: () => void;
   onPlayoff: () => void;
   onCup: () => void;
-  onSettings: () => void;
 }) {
   const actions: { key: Section; onClick: () => void }[] = [
     { key: "score", onClick: onScore },
@@ -53,15 +51,21 @@ export function SectionNav({
           {LABELS[lang][key]}
         </button>
       ))}
-      <button
-        type="button"
-        onClick={onSettings}
-        aria-label={t(lang, "settings")}
-        title={t(lang, "settings")}
-        className="grid size-10 shrink-0 place-items-center rounded-full border border-line transition-colors hover:bg-surface"
-      >
-        <Settings aria-hidden="true" className="size-5" />
-      </button>
+
     </nav>
+  );
+}
+
+export function SettingsButton({ lang, onClick }: { lang: Lang; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={t(lang, "settings")}
+      title={t(lang, "settings")}
+      className="grid size-10 shrink-0 place-items-center rounded-full border border-line transition-colors hover:bg-surface"
+    >
+      <Settings aria-hidden="true" className="size-5" />
+    </button>
   );
 }
