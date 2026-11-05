@@ -68,7 +68,26 @@ export function formatSlateDate(ymd: string, locale: string): string {
 export function formatTip(iso: string, locale: string): string {
   const dt = new Date(iso);
   if (Number.isNaN(dt.getTime())) return "";
-  return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(dt);
+  return new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  }).format(dt);
+}
+
+export function formatLocalTipWithDay(iso: string, locale: string): string {
+  const dt = new Date(iso);
+  if (Number.isNaN(dt.getTime())) return "";
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const time = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone,
+  }).format(dt);
+  const day = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone }).format(dt);
+  return `${time} · ${day}`;
 }
 
 export function isYmd(value: string): boolean {
