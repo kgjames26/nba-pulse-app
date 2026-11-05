@@ -172,7 +172,6 @@ function Desk() {
         favoriteIds={favoriteIds}
         canSee={canSeeStandings}
         onUnlock={() => unlockStandings(etYmd())}
-        onClose={() => setStandingsOpen(false)}
         onHome={() => {
           setStandingsOpen(false);
           setNewsOpen(false);
