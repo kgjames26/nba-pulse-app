@@ -7,7 +7,7 @@ import { localeFor, t, type Lang } from "@/lib/nba/i18n";
 import type { CupGame, CupGroup, CupTeamStanding } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
-import { SectionNav } from "./section-nav";
+import { SectionNav, SettingsButton } from "./section-nav";
 
 const COPY: Record<Lang, {
   title: string; season: string; intro: string; groupPlay: string; projection: string;
@@ -55,11 +55,14 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   return <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
     <div className="mx-auto min-h-screen max-w-6xl px-4 pb-12 pt-4">
       <header className="border-b border-line pb-4">
-        <p className="font-display text-2xl tracking-wide">
-          NBA <span className="text-accent">PULSE</span>
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-display text-2xl tracking-wide">
+            NBA <span className="text-accent">PULSE</span>
+          </p>
+          <SettingsButton lang={lang} onClick={onSettings} />
+        </div>
         <div className="mt-4 max-w-full overflow-x-auto px-2 pb-2 pt-2">
-        <SectionNav active="cup" lang={lang} onScore={onScore} onStandings={onStandings} onNews={onNews} onPlayoff={onPlayoff} onCup={() => undefined} onSettings={onSettings} />
+          <SectionNav active="cup" lang={lang} onScore={onScore} onStandings={onStandings} onNews={onNews} onPlayoff={onPlayoff} onCup={() => undefined} />
         </div>
         <div className="mt-5 border-s-4 border-accent ps-4">
           <h1 className="font-display text-5xl font-extrabold leading-none text-accent sm:text-6xl">{copy.title}</h1>
