@@ -1,15 +1,55 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getNews } from "@/lib/nba/api";
-import { localeFor, t, type Lang } from "@/lib/nba/i18n";
+import { LANGS, localeFor, t, type Lang } from "@/lib/nba/i18n";
 import { SectionNav } from "./section-nav";
 
-const COPY: Record<Lang, { title: string; source: string; empty: string; error: string }> = {
-  fr: { title: "Actualités", source: "Articles NBA · ESPN", empty: "Aucune actualité disponible pour le moment.", error: "Le flux d’actualités n’a pas répondu." },
-  en: { title: "News", source: "NBA articles · ESPN", empty: "No news is available right now.", error: "The news feed did not respond." },
-  es: { title: "Noticias", source: "Artículos NBA · ESPN", empty: "No hay noticias disponibles por ahora.", error: "El servicio de noticias no respondió." },
-  tr: { title: "Haberler", source: "NBA haberleri · ESPN", empty: "Şu anda haber yok.", error: "Haber akışı yanıt vermedi." },
-  ar: { title: "الأخبار", source: "أخبار NBA · ESPN", empty: "لا تتوفر أخبار الآن.", error: "لم يستجب موجز الأخبار." },
-  zh: { title: "新闻", source: "NBA 资讯 · ESPN", empty: "目前没有可用新闻。", error: "新闻源没有响应。" },
+const COPY: Record<Lang, {
+  title: string;
+  source: string;
+  empty: string;
+  error: string;
+  translate: string;
+  translated: string;
+  original: string;
+  unavailable: string;
+}> = {
+  fr: {
+    title: "Actualités", source: "Flux NBA · API ESPN", empty: "Aucune actualité disponible pour le moment.",
+    error: "Le flux d’actualités n’a pas répondu.", translate: "Google Translate",
+    translated: "Titres et résumés traduits automatiquement.", original: "Contenu original en anglais.",
+    unavailable: "Traduction indisponible : configure la clé API Google côté serveur.",
+  },
+  en: {
+    title: "News", source: "NBA feed · ESPN API", empty: "No news is available right now.",
+    error: "The news feed did not respond.", translate: "Google Translate",
+    translated: "Headlines and summaries translated automatically.", original: "Original English content.",
+    unavailable: "Translation unavailable: configure the Google API key on the server.",
+  },
+  es: {
+    title: "Noticias", source: "Flujo NBA · API ESPN", empty: "No hay noticias disponibles por ahora.",
+    error: "El servicio de noticias no respondió.", translate: "Google Translate",
+    translated: "Titulares y resúmenes traducidos automáticamente.", original: "Contenido original en inglés.",
+    unavailable: "Traducción no disponible: configura la clave de Google en el servidor.",
+  },
+  tr: {
+    title: "Haberler", source: "NBA akışı · ESPN API", empty: "Şu anda haber yok.",
+    error: "Haber akışı yanıt vermedi.", translate: "Google Translate",
+    translated: "Başlıklar ve özetler otomatik çevrildi.", original: "İngilizce orijinal içerik.",
+    unavailable: "Çeviri kullanılamıyor: sunucuda Google API anahtarını yapılandır.",
+  },
+  ar: {
+    title: "الأخبار", source: "موجز NBA · واجهة ESPN", empty: "لا تتوفر أخبار الآن.",
+    error: "لم يستجب موجز الأخبار.", translate: "Google Translate",
+    translated: "تُرجمت العناوين والملخصات تلقائيًا.", original: "المحتوى الأصلي باللغة الإنجليزية.",
+    unavailable: "الترجمة غير متاحة: أضف مفتاح Google API إلى الخادم.",
+  },
+  zh: {
+    title: "新闻", source: "NBA 资讯 · ESPN API", empty: "目前没有可用新闻。",
+    error: "新闻源没有响应。", translate: "Google Translate",
+    translated: "标题和摘要已自动翻译。", original: "英文原文。",
+    unavailable: "翻译不可用：请在服务器配置 Google API 密钥。",
+  },
 };
 
 export function NewsView({
@@ -23,14 +63,24 @@ export function NewsView({
   onStandings: () => void;
   onSettings: () => void;
 }) {
+  const [targetLang, setTargetLang] = useState<Lang>(lang);
+  useEffect(() => setTargetLang(lang), [lang]);
+
   const query = useQuery({
-    queryKey: ["nba-news"],
-    queryFn: () => getNews({ data: { refresh: false } }),
+    queryKey: ["nba-news", targetLang],
+    queryFn: () => getNews({ data: { refresh: false, lang: targetLang } }),
     staleTime: 5 * 60_000,
   });
   const copy = COPY[lang];
   const articles = query.data?.ok ? query.data.articles : [];
   const failed = query.isError || (query.data != null && !query.data.ok);
+  const translationStatus = query.data?.ok
+    ? query.data.translation === "google"
+      ? copy.translated
+      : query.data.translation === "original"
+        ? copy.original
+        : copy.unavailable
+    : "";
 
   return (
     <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
@@ -49,6 +99,19 @@ export function NewsView({
             onSettings={onSettings}
           />
         </header>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-3">
+          <label htmlFor="nba-news-language" className="text-sm text-muted">{copy.translate}</label>
+          <select
+            id="nba-news-language"
+            value={targetLang}
+            onChange={(event) => setTargetLang(event.target.value as Lang)}
+            className="min-h-10 rounded-full border border-line bg-surface px-3 text-sm"
+          >
+            {LANGS.map((item) => <option key={item.id} value={item.id}>{item.native}</option>)}
+          </select>
+          <p className="w-full text-xs text-faint" role="status" aria-live="polite">{translationStatus}</p>
+        </div>
 
         {query.isLoading && (
           <div className="mt-5 flex flex-col gap-3" aria-label={t(lang, "loading")}>
