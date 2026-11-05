@@ -282,43 +282,54 @@ function collectLinks(value: unknown, found: string[]): void {
   Object.values(row).forEach((item) => collectLinks(item, found));
 }
 
-function clipsOf(root: Record<string, unknown>, roster: string[]): Clip[] {
+function clipsOf(root: Record<string, unknown>, roster: string[], game: GameCard): Clip[] {
   const clips: Clip[] = [];
   for (const item of arr(root.videos)) {
     const row = obj(item);
     if (!row) continue;
     const links: string[] = [];
     collectLinks(row.links, links);
-    const youtube = links.find((link) => /youtu\.?be|youtube\.com/i.test(link));
-    const web = str(obj(obj(row.links)?.web)?.href);
-    const url = youtube || web;
-    if (!url.startsWith("http")) continue;
+    const youtube = links.find((link) => /(?:youtube\.com|youtu\.be)/i.test(link));
+    if (!youtube) continue;
     const title = str(row.headline) || str(row.description);
     if (!title) continue;
     const names = [...roster].sort((a, b) => b.length - a.length);
     const player = names.find((name) => name.length > 3 && title.toLowerCase().includes(name.toLowerCase())) ?? null;
     const packageClip = /highlights/i.test(title);
     clips.push({
-      id: String(row.id ?? title),
+      id: String(row.id ?? youtube),
       title,
       thumbnail: str(row.thumbnail),
-      url,
+      url: youtube,
       duration: num(row.duration) ?? 0,
       player,
       kind: packageClip ? "package" : "play",
     });
   }
-  const plays = clips.filter((clip) => clip.kind === "play");
-  const packages = clips.filter((clip) => clip.kind === "package");
-  const picked = [...plays, ...packages];
+
   const seen = new Set<string>();
-  return picked.filter((clip) => {
+  const verified = clips.filter((clip) => {
     if (seen.has(clip.id)) return false;
     seen.add(clip.id);
     return true;
   }).slice(0, 5);
-}
+  if (verified.length) return verified;
 
+  const matchup = `${game.away.name} vs ${game.home.name}`;
+  const gameDate = game.tipoff.slice(0, 10);
+  return [
+    { id: `youtube-highlights-${game.id}`, title: `${matchup} · ${gameDate} · NBA game highlights`, query: `${matchup} NBA highlights ${gameDate}` },
+    { id: `youtube-recap-${game.id}`, title: `${matchup} · ${gameDate} · Full game recap`, query: `${matchup} NBA full game recap ${gameDate}` },
+  ].map((item) => ({
+    id: item.id,
+    title: item.title,
+    thumbnail: "",
+    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(item.query)}`,
+    duration: 0,
+    player: null,
+    kind: "package" as const,
+  }));
+}
 function oddsFrom(comp: Record<string, unknown> | null, pick: Record<string, unknown> | null, homeId: string, awayId: string): OddsView | null {
   const fetchedAt = new Date().toISOString();
   const book = obj(arr(comp?.odds)[0]);
@@ -436,7 +447,7 @@ export async function loadGame(id: string): Promise<GameDetail> {
     game: { ...game, venue },
     attendance,
     box: boxOf(body),
-    clips: clipsOf(body, roster.length ? roster : leadersOf(body).map((leader) => leader.name)),
+    clips: clipsOf(body, roster.length ? roster : leadersOf(body).map((leader) => leader.name), game),
     odds: oddsFrom(comp, pick, game.home.id, game.away.id),
     injuries: injuriesOf(body),
     leaders: leadersOf(body),
