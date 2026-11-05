@@ -54,14 +54,16 @@ export function GameView({
 
   return (
     <article className="min-h-screen bg-bg">
-      <header className="sticky top-0 z-10 flex items-center gap-2 bg-bg/95 px-3 py-3 backdrop-blur lg:px-6">
-        <button type="button" onClick={onBack} className="grid size-11 place-items-center rounded-full border border-line lg:hidden">
-          <ChevronLeft className="size-5 rtl:rotate-180" />
-          <span className="sr-only">{t(lang, "back")}</span>
-        </button>
-        <p className="font-display text-2xl tracking-wide">
-          NBA <span className="text-accent">PULSE</span>
-        </p>
+      <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-bg/95 px-3 py-3 backdrop-blur lg:px-6">
+        <div className="flex min-w-0 items-center gap-2">
+          <button type="button" onClick={onBack} className="grid size-11 shrink-0 place-items-center rounded-full border border-line lg:hidden">
+            <ChevronLeft className="size-5 rtl:rotate-180" />
+            <span className="sr-only">{t(lang, "back")}</span>
+          </button>
+          <p className="whitespace-nowrap font-display text-2xl tracking-wide">
+            NBA <span className="text-accent">PULSE</span>
+          </p>
+        </div>
         <SettingsButton lang={lang} onClick={onSettings} />
       </header>
       <div className="px-4 pb-16 lg:px-6">
