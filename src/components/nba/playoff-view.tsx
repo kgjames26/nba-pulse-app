@@ -120,6 +120,7 @@ export function PlayoffView({
   onScore,
   onStandings,
   onNews,
+  onCup,
   onSettings,
 }: {
   lang: Lang;
@@ -129,6 +130,7 @@ export function PlayoffView({
   onScore: () => void;
   onStandings: () => void;
   onNews: () => void;
+  onCup: () => void;
   onSettings: () => void;
 }) {
   const [conference, setConference] = useState<Conference>("east");
