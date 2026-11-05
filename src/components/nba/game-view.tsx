@@ -53,7 +53,7 @@ export function GameView({
   });
 
   return (
-    <article className="min-h-screen bg-bg">
+    <article className="min-h-screen overflow-x-hidden bg-bg">
       <header className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-bg/95 px-3 py-3 backdrop-blur lg:px-6">
         <div className="flex min-w-0 items-center gap-2">
           <button type="button" onClick={onBack} className="grid size-11 shrink-0 place-items-center rounded-full border border-line lg:hidden">
