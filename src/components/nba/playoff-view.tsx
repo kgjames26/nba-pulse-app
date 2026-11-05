@@ -164,6 +164,7 @@ export function PlayoffView({
             onStandings={onStandings}
             onNews={onNews}
             onPlayoff={() => undefined}
+            onCup={onCup}
             onSettings={onSettings}
           />
         </header>
