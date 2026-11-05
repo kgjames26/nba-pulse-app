@@ -56,7 +56,7 @@ export function StandingsView({
       <div className="mx-auto min-h-screen max-w-xl px-3 pb-12 pt-4">
         <PageHeader
         active="standings"
-        title={{t(lang, "standings")}}
+        title={t(lang, "standings")}
         lang={lang}
         onScore={onHome}
         onStandings={() => undefined}
