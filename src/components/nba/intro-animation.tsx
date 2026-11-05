@@ -10,13 +10,15 @@ const SHARDS = [
   ["128,408 195,350 260,410 220,570 180,570", -40, 80], ["105,236 182,120 285,214 195,350 128,408", 25, -50],
 ] as const;
 
+const outline = { stroke: "#10131a", strokeWidth: 5, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+
 export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       onComplete();
       return;
     }
-    const timer = window.setTimeout(onComplete, 3300);
+    const timer = window.setTimeout(onComplete, 3200);
     return () => window.clearTimeout(timer);
   }, [onComplete]);
 
@@ -25,7 +27,7 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
       <svg className="nba-intro__scene" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
         <defs>
           <radialGradient id="intro-spot">
-            <stop offset="0" stopColor="#202631" stopOpacity=".84" />
+            <stop offset="0" stopColor="#293243" stopOpacity=".8" />
             <stop offset="1" stopColor="#07080a" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="intro-floor" x1="0" y1="0" x2="1" y2="1">
@@ -33,62 +35,87 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
             <stop offset=".5" stopColor="#141a22" stopOpacity=".5" />
             <stop offset="1" stopColor="#07080a" stopOpacity="0" />
           </linearGradient>
+          <linearGradient id="jersey" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#25d5cf" />
+            <stop offset=".55" stopColor="#078a91" />
+            <stop offset="1" stopColor="#07515e" />
+          </linearGradient>
+          <linearGradient id="skin" x1="0" y1="0" x2="0.9" y2="1">
+            <stop offset="0" stopColor="#e2aa80" />
+            <stop offset=".5" stopColor="#b96e4d" />
+            <stop offset="1" stopColor="#744331" />
+          </linearGradient>
           <filter id="intro-glow" x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur stdDeviation="9" />
           </filter>
         </defs>
 
         <rect width="390" height="844" fill="#07080a" />
-        <ellipse cx="240" cy="390" rx="260" ry="300" fill="url(#intro-spot)" />
+        <ellipse cx="235" cy="382" rx="260" ry="300" fill="url(#intro-spot)" />
         <path d="M0 690 Q195 630 390 690 V844 H0Z" fill="url(#intro-floor)" />
         <path d="M0 703 Q195 644 390 703 M66 844 Q195 700 324 844 M195 662V844" fill="none" stroke="#748092" strokeOpacity=".15" strokeWidth="2" />
 
         <g className="intro-hoop">
-          <path d="M326 220V322" stroke="#b9c5d4" strokeWidth="5" />
-          <path d="M316 220H338" stroke="#b9c5d4" strokeWidth="4" />
-          <path d="M322 325H286" stroke="#ff6b35" strokeWidth="7" strokeLinecap="round" />
-          <path d="M289 328L294 359L302 366L310 359L315 328" fill="none" stroke="#e8edf5" strokeOpacity=".65" strokeWidth="2" />
-          <path d="M294 340H311M296 351H312" stroke="#e8edf5" strokeOpacity=".5" strokeWidth="1.5" />
+          <path d="M326 220V322" stroke="#aab8c8" strokeWidth="6" />
+          <path d="M314 220H340" stroke="#eef4fa" strokeWidth="5" />
+          <path d="M289 326H319" stroke="#ff7043" strokeWidth="8" strokeLinecap="round" />
+          <path d="M292 330L297 361L304 367L311 361L316 330M297 341H312M299 352H313" fill="none" stroke="#e8edf5" strokeOpacity=".78" strokeWidth="2" />
         </g>
 
-        <g transform="translate(55 554)">
+        <g transform="translate(58 566)">
           <g className="intro-attacker">
-            <ellipse cx="2" cy="82" rx="27" ry="7" fill="#000" opacity=".55" />
-            <circle cx="0" cy="-52" r="14" fill="#b87b58" />
-            <path d="M-15-37Q0-44 15-37L21 16L12 29H-14L-21 16Z" fill="#16a6a1" />
-            <path d="M-8-25H8V2H-8Z" fill="#e8f4f2" opacity=".94" />
-            <path d="M-15-30L-37-2L-55-28" fill="none" stroke="#b87b58" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-            <path className="intro-shooting-arm" d="M15-31L38-55L60-69" fill="none" stroke="#b87b58" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M-13 26L-21 58L-38 76M13 26L24 54L40 68" fill="none" stroke="#b87b58" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M-22 14H21L15 32H-18Z" fill="#f1f3f5" />
-            <path d="M-42 78L-31 75M37 69L48 71" stroke="#e9ecef" strokeWidth="8" strokeLinecap="round" />
+            <ellipse cx="0" cy="108" rx="34" ry="8" fill="#000" opacity=".55" />
+            <path d="M-15 27L-26 75L-48 101M12 25L25 71L48 89" fill="none" stroke="#10131a" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-15 27L-26 72L-45 94M12 25L24 68L44 83" fill="none" stroke="url(#skin)" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-52 99L-29 94L-18 101L-20 108H-56Z M37 84L48 80L59 86L58 93L40 94Z" fill="#e6edf4" {...outline} />
+            <path d="M-20-31Q0-43 20-31L27 20L17 39H-18L-28 18Z" fill="url(#jersey)" {...outline} />
+            <path d="M-18-29L0-12L18-29L11-36H-11Z" fill="#e7f1ec" stroke="#10131a" strokeWidth="4" />
+            <path d="M-9-8H9V22H-9Z" fill="#f1f5ef" opacity=".92" />
+            <path d="M-23-26L-39-3L-58-22" fill="none" stroke="#10131a" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-23-26L-38-4L-55-22" fill="none" stroke="url(#skin)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M18-29L35-51L52-79" fill="none" stroke="#10131a" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+            <path className="intro-shooting-arm" d="M18-29L35-51L52-79" fill="none" stroke="url(#skin)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="57" cy="-84" r="8" fill="url(#skin)" stroke="#10131a" strokeWidth="3" />
+            <path d="M-24 10H25L20 42L-20 42Z" fill="#ed704b" {...outline} />
+            <path d="M-20 13H-1V36H-17ZM5 13H21L17 36H5Z" fill="#f7a079" opacity=".55" />
+            <path d="M-10-59Q-3-69 8-65Q19-61 16-49L12-38Q3-30-9-39Q-18-45-10-59Z" fill="url(#skin)" {...outline} />
+            <path d="M-12-55Q-7-70 8-66L17-59L13-54L-1-56L-11-48Z" fill="#17151a" stroke="#10131a" strokeWidth="4" />
+            <path d="M-9-42L-2-39" stroke="#f1c4a0" strokeWidth="2" />
           </g>
         </g>
 
-        <g transform="translate(118 562)">
+        <g transform="translate(192 570)">
           <g className="intro-wemby">
-            <ellipse cx="0" cy="96" rx="30" ry="8" fill="#000" opacity=".55" />
-            <circle cx="0" cy="-67" r="15" fill="#805b49" />
-            <path d="M-16-51Q0-59 16-51L22 14L12 30H-13L-22 14Z" fill="#d8dde3" />
-            <path d="M-8-40H8V3H-8Z" fill="#1d2735" />
-            <path d="M-15-44L-35-16L-51-29" fill="none" stroke="#805b49" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-            <path className="intro-block-arm" d="M15-45L31-87L44-142" fill="none" stroke="#805b49" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M-14 27L-20 65L-32 87M13 27L24 61L40 77" fill="none" stroke="#805b49" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M-23 14H22L16 35H-17Z" fill="#111820" />
-            <path d="M-37 89L-25 87M37 78L49 81" stroke="#f3f4f6" strokeWidth="9" strokeLinecap="round" />
+            <ellipse cx="0" cy="114" rx="35" ry="9" fill="#000" opacity=".6" />
+            <path d="M-15 28L-22 73L-38 104M13 28L21 74L40 102" fill="none" stroke="#10131a" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-15 28L-21 71L-36 98M13 28L20 72L37 96" fill="none" stroke="url(#skin)" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-45 105L-29 97L-19 102L-19 111H-47ZM32 102L41 95L56 100L56 107L37 111Z" fill="#e9eef2" {...outline} />
+            <path d="M-19-44Q0-52 19-44L24 17L14 36H-15L-24 17Z" fill="url(#jersey)" {...outline} />
+            <path d="M-13-40L0-25L13-40L8-46H-8Z" fill="#e7f1ec" stroke="#10131a" strokeWidth="4" />
+            <path d="M-12-28H12V26H-12Z" fill="#f1f5ef" opacity=".86" />
+            <path d="M-19-39L-39-16L-54-25" fill="none" stroke="#10131a" strokeWidth="17" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M-19-39L-38-17L-52-25" fill="none" stroke="url(#skin)" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M18-40L37-71L49-132" fill="none" stroke="#10131a" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+            <path className="intro-block-arm" d="M18-40L37-71L49-132" fill="none" stroke="url(#skin)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M44-136L50-154L56-136L66-129L53-128L49-119L46-128L35-129Z" fill="url(#skin)" stroke="#10131a" strokeWidth="3" />
+            <path d="M-22 14H24L18 44H-18Z" fill="#ed704b" {...outline} />
+            <path d="M-18 18H-1V39H-16ZM6 18H20L16 39H6Z" fill="#f7a079" opacity=".56" />
+            <path d="M-10-79Q-4-89 8-85Q18-81 15-67L11-50Q1-41-10-52Q-18-61-10-79Z" fill="url(#skin)" {...outline} />
+            <path d="M-13-74Q-12-91 4-92Q15-91 19-80L14-73L5-80L-5-74Z" fill="#17151a" stroke="#10131a" strokeWidth="4" />
+            <path d="M-7-57L1-54" stroke="#f1c4a0" strokeWidth="2" />
           </g>
         </g>
 
-        <g className="intro-ball" transform="translate(278 354)">
-          <circle r="19" fill="#f18a32" />
-          <path d="M-18 0H18M0-18V18M-13-13Q0 0 13 13M13-13Q0 0-13 13" fill="none" stroke="#412b1d" strokeWidth="2" />
+        <g className="intro-ball" transform="translate(286 314)">
+          <circle r="19" fill="#f18a32" stroke="#17110e" strokeWidth="3" />
+          <path d="M-18 0H18M0-18V18M-13-13Q0 0 13 13M13-13Q0 0-13 13" fill="none" stroke="#412b1d" strokeWidth="2.5" />
         </g>
 
-        <circle className="intro-impact" cx="274" cy="282" r="50" fill="#eaf5ff" filter="url(#intro-glow)" />
-        <path className="intro-impact-rays" d="M274 282L238 258M274 282L285 235M274 282L320 263M274 282L307 309M274 282L248 326" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+        <circle className="intro-impact" cx="289" cy="284" r="50" fill="#eaf5ff" filter="url(#intro-glow)" />
+        <path className="intro-impact-rays" d="M289 284L248 255M289 284L294 232M289 284L337 263M289 284L326 314M289 284L258 333" stroke="#fff" strokeWidth="5" strokeLinecap="round" />
 
         <g className="intro-glass">
-          <path className="intro-crack" d="M274 282L232 208L199 171L205 105M274 282L340 224L390 194M274 282L335 347L390 374M274 282L236 382L208 466L232 548M274 282L179 293L111 277L0 302M274 282L165 354L97 428L0 454M274 282L184 216L105 164L0 133M274 282L184 402L132 520L111 646M274 282L333 416L354 540L390 635" fill="none" stroke="#eaf5ff" strokeOpacity=".9" strokeWidth="2" />
+          <path className="intro-crack" d="M289 284L232 208L199 171L205 105M289 284L340 224L390 194M289 284L335 347L390 374M289 284L236 382L208 466L232 548M289 284L179 293L111 277L0 302M289 284L165 354L97 428L0 454M289 284L184 216L105 164L0 133M289 284L184 402L132 520L111 646M289 284L333 416L354 540L390 635" fill="none" stroke="#eaf5ff" strokeOpacity=".9" strokeWidth="2" />
           {SHARDS.map(([points, dx, dy], index) => (
             <polygon
               key={index}
