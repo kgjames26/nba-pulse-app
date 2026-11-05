@@ -52,7 +52,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const recent = games.filter((item) => item.game.status === "post").slice(-5).reverse();
   const shownGames = schedule.length ? schedule : recent;
 
-  return <main className="fixed inset-0 z-30 overflow-y-auto bg-bg">
+  return <main className="fixed inset-0 z-30 overflow-x-hidden overflow-y-auto bg-bg">
     <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
       <header className="border-b border-line pb-4">
         <div className="flex items-center justify-between gap-3">
