@@ -6,19 +6,9 @@ import { getGame, getNarrative } from "@/lib/nba/api";
 import { localeFor, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { percentPair } from "@/lib/nba/odds";
 import { presentGame, resultsAreHidden } from "@/lib/nba/present";
-import { sourceHost } from "@/lib/nba/tactic";
-import type { Clip, GameCard, GameDetail, PlayerLine, Tactic } from "@/lib/nba/types";
+import type { Clip, GameCard, GameDetail, PlayerLine } from "@/lib/nba/types";
 import { PrimaryButton, TeamMark } from "./ui";
 import { SettingsButton } from "./section-nav";
-
-const BOX_EMPTY: Record<Lang, string> = {
-  fr: "Le flux n'a pas fourni de feuille de stats.",
-  en: "The feed did not include a box score.",
-  es: "La fuente no trae hoja de estadísticas.",
-  tr: "Akış istatistik tablosu vermedi.",
-  ar: "التغذية لا تتضمن إحصاءات اللاعبين.",
-  zh: "数据源没有提供技术统计。",
-};
 
 export function GameView({
   id,
@@ -97,22 +87,17 @@ export function GameView({
               <>
                 <Lines game={presentGame(game, true)} lang={lang} />
                 <Box detailTeams={detail.box} game={game} lang={lang} />
-                <Recap
-                  lang={lang}
-                  stat={statReading(lang, detail)}
-                  pending={game.status !== "post"}
-                />
+                {game.status === "post" && <Recap lang={lang} stat={statReading(lang, detail)} />}
                 <Clips clips={detail.clips} lang={lang} />
               </>
             )}
             {game.status === "pre" && (
               <>
-                <Odds detail={detail} lang={lang} locale={locale} />
+                <Odds detail={detail} lang={lang} />
                 <Duels
                   lang={lang}
                   stat={statReading(lang, detail)}
                   desk={narrative.data?.mode === "desk" ? narrative.data.duels : []}
-                  tried={narrative.isFetched}
                 />
               </>
             )}
@@ -219,8 +204,6 @@ function Box({
   return (
     <section className="mt-6">
       <h2 className="font-display text-2xl">{t(lang, "box")}</h2>
-      <p className="mt-1 text-xs text-faint">{t(lang, "boxScroll")}</p>
-      {detailTeams.length === 0 && <p className="mt-3 text-sm text-muted">{BOX_EMPTY[lang]}</p>}
       <div className="mt-3 flex gap-2">
         {order.map((side) => (
           <a key={side.id} href={`#box-${side.id}`} className="min-h-11 rounded-full border border-line px-4 py-2 text-sm">
@@ -285,20 +268,15 @@ function PlayerRow({ player, top, lang, starter = false }: { player: PlayerLine;
 function Recap({
   lang,
   stat,
-  pending,
 }: {
   lang: Lang;
   stat: ReturnType<typeof statReading>;
-  pending: boolean;
 }) {
   const facts = stat.text.split(/(?<=[.!?])\s+/).filter(Boolean);
   return (
     <section className="mt-8">
       <h2 className="font-display text-2xl">{t(lang, "recap")}</h2>
-      {pending ? (
-        <p className="mt-4 text-sm text-muted">{t(lang, "comingSoonRecap")}</p>
-      ) : (
-        <div className="mt-5 flex flex-col gap-4">
+      <div className="mt-5 flex flex-col gap-4">
           {facts.length > 0 && (
             <ul className="grid gap-3 sm:grid-cols-2">
               {facts.map((fact, index) => (
@@ -308,8 +286,7 @@ function Recap({
               ))}
             </ul>
           )}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -348,7 +325,7 @@ function Clips({ clips, lang }: { clips: Clip[]; lang: Lang }) {
   );
 }
 
-function Odds({ detail, lang, locale }: { detail: GameDetail; lang: Lang; locale: string }) {
+function Odds({ detail, lang }: { detail: GameDetail; lang: Lang }) {
   const odds = detail.odds;
   const game = detail.game;
   const pair = odds ? percentPair(odds.homeProb, odds.awayProb) : null;
@@ -367,11 +344,8 @@ function Odds({ detail, lang, locale }: { detail: GameDetail; lang: Lang; locale
             <div style={{ width: `${pair.away}%`, background: game.away.color }} />
             <div style={{ width: `${pair.home}%`, background: game.home.color }} />
           </div>
-          <p className="mt-3 text-xs text-faint">{t(lang, "providerLine", { name: odds.provider })}</p>
-          <p className="mt-1 text-xs text-faint">{t(lang, "oddsAsOf", { time: formatTip(detail.fetchedAt, locale) })}</p>
         </div>
       )}
-      <p className="mt-3 text-sm text-muted">{t(lang, "oddsNote")}</p>
     </section>
   );
 }
@@ -389,20 +363,16 @@ function Duels({
   lang,
   stat,
   desk,
-  tried,
 }: {
   lang: Lang;
   stat: ReturnType<typeof statReading>;
   desk: { title: string; body: string }[];
-  tried: boolean;
 }) {
   const duels = desk.length ? desk : stat.duels;
+  if (duels.length === 0 && !stat.absences) return null;
   return (
     <section className="mt-6">
       <h2 className="font-display text-2xl">{t(lang, "duels")}</h2>
-      <p className="mt-1 text-xs uppercase tracking-widest text-accent">{desk.length ? t(lang, "deskLabel") : t(lang, "statLabel")}</p>
-      <p className="mt-2 text-sm text-muted">{t(lang, "duelNote")}</p>
-      {duels.length === 0 && <p className="mt-3 text-sm text-muted">{t(lang, "duelNote")}</p>}
       <ul className="mt-3 flex flex-col gap-3">
         {duels.map((duel) => (
           <li key={duel.title + duel.body.slice(0, 24)} className="rounded-card border border-line bg-surface p-4">
@@ -412,7 +382,6 @@ function Duels({
         ))}
       </ul>
       {stat.absences && <p className="mt-3 text-sm text-muted">{stat.absences}</p>}
-      {tried && desk.length === 0 && <p className="mt-2 text-xs text-faint">{t(lang, "noAi")}</p>}
     </section>
   );
 }

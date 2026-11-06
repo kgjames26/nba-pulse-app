@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { formatTip } from "@/lib/nba/dates";
 import { getPlayoffScores, getStandings } from "@/lib/nba/api";
-import { localeFor, phaseLabel, t, type Lang } from "@/lib/nba/i18n";
+import { t, type Lang } from "@/lib/nba/i18n";
 import type { PlayoffSeriesScore, StandingRow, Standings } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
@@ -11,7 +10,6 @@ import { PageHeader } from "./section-nav";
 
 const COPY: Record<Lang, {
   title: string;
-  projection: string;
   firstRound: string;
   semifinals: string;
   conferenceFinal: string;
@@ -25,7 +23,6 @@ const COPY: Record<Lang, {
 }> = {
   fr: {
     title: "Playoff",
-    projection: "Projection du classement",
     firstRound: "Premier tour",
     semifinals: "Demi-finales",
     conferenceFinal: "Finale de conférence",
@@ -39,7 +36,6 @@ const COPY: Record<Lang, {
   },
   en: {
     title: "Playoffs",
-    projection: "Standings projection",
     firstRound: "First round",
     semifinals: "Semifinals",
     conferenceFinal: "Conference final",
@@ -53,7 +49,6 @@ const COPY: Record<Lang, {
   },
   es: {
     title: "Playoff",
-    projection: "Proyección de la clasificación",
     firstRound: "Primera ronda",
     semifinals: "Semifinales",
     conferenceFinal: "Final de conferencia",
@@ -67,7 +62,6 @@ const COPY: Record<Lang, {
   },
   tr: {
     title: "Playoff",
-    projection: "Sıralama tahmini",
     firstRound: "İlk tur",
     semifinals: "Yarı finaller",
     conferenceFinal: "Konferans finali",
@@ -81,7 +75,6 @@ const COPY: Record<Lang, {
   },
   ar: {
     title: "الأدوار الإقصائية",
-    projection: "توقع حسب الترتيب",
     firstRound: "الدور الأول",
     semifinals: "نصف النهائي",
     conferenceFinal: "نهائي المنطقة",
@@ -95,7 +88,6 @@ const COPY: Record<Lang, {
   },
   zh: {
     title: "季后赛",
-    projection: "根据排名预测",
     firstRound: "首轮",
     semifinals: "半决赛",
     conferenceFinal: "分区决赛",
@@ -148,7 +140,6 @@ export function PlayoffView({
     queryFn: () => getPlayoffScores({ data: { seasonYear } }),
   });
   if (!open) return null;
-  const locale = localeFor(lang);
   const rows = conference === "east" ? table?.east ?? [] : table?.west ?? [];
   const copy = COPY[lang];
   const scores = scoreQuery.data?.ok ? scoreQuery.data.scores : null;
@@ -179,10 +170,7 @@ export function PlayoffView({
         ) : (
           <>
             {table && (
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-faint">
-                <p>{copy.projection} · {table.season}{table.phase ? ` · ${phaseLabel(String(table.phase), lang)}` : ""}</p>
-                <p>{t(lang, "updated", { time: formatTip(table.fetchedAt, locale) })}</p>
-              </div>
+              <p className="mt-4 text-xs text-faint">{table.season}</p>
             )}
             <div className="mt-4 flex gap-2 sm:max-w-sm">
               {(["east", "west"] as const).map((key) => (
@@ -212,7 +200,6 @@ export function PlayoffView({
                   {teams.map(([a, b], index) => (
                     <MatchCard
                       key={index}
-                      label={`${copy.game} ${index + 1}`}
                       seedA={a}
                       seedB={b}
                       a={rows[a - 1]}
@@ -225,7 +212,7 @@ export function PlayoffView({
                 </Round>
                 <Round title={copy.semifinals} tone="violet">
                   {[[`${copy.game} 1`, `${copy.game} 2`], [`${copy.game} 3`, `${copy.game} 4`]].map((pair, index) => (
-                    <SlotMatch key={index} label={`${copy.game} ${index + 5}`} left={pair[0]} right={pair[1]} score={copy.tbd} tone="violet" />
+                    <SlotMatch key={index} left={pair[0]} right={pair[1]} score={copy.tbd} tone="violet" />
                   ))}
                 </Round>
                 <Round
@@ -237,7 +224,7 @@ export function PlayoffView({
                     />
                   }
                 >
-                  <SlotMatch label={`${copy.game} 7`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="amber" />
+                  <SlotMatch left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="amber" />
                 </Round>
                 <section className="rounded-card border border-fuchsia-400/30 bg-fuchsia-400/[0.035] p-4 sm:p-5">
                   <h2 className="flex items-center gap-2 font-display text-xl text-fuchsia-200">
@@ -245,7 +232,7 @@ export function PlayoffView({
                     {copy.nbaFinal}
                   </h2>
                   <div className="mt-3">
-                    <SlotMatch label={copy.nbaFinal} left={copy.eastChampion} right={copy.westChampion} score={copy.tbd} tone="fuchsia" />
+                    <SlotMatch left={copy.eastChampion} right={copy.westChampion} score={copy.tbd} tone="fuchsia" />
                   </div>
                 </section>
                 <section className="rounded-card border border-emerald-400/30 bg-emerald-400/[0.035] p-4 sm:p-5">
@@ -254,7 +241,6 @@ export function PlayoffView({
                     {[[7, 8], [9, 10]].map(([a, b], index) => (
                       <MatchCard
                         key={index}
-                        label={`${copy.game} ${index + 1}`}
                         seedA={a}
                         seedB={b}
                         a={rows[a - 1]}
@@ -264,7 +250,7 @@ export function PlayoffView({
                         tone="emerald"
                       />
                     ))}
-                    <SlotMatch label={`${copy.game} 3`} left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="emerald" />
+                    <SlotMatch left={copy.semifinals} right={copy.semifinals} score={copy.tbd} tone="emerald" />
                   </div>
                 </section>
               </div>
@@ -332,8 +318,7 @@ function ConferenceChampionBadge({ label }: { label: string }) {
   );
 }
 
-function MatchCard({ label, seedA, seedB, a, b, score, lang, tone }: {
-  label: string;
+function MatchCard({ seedA, seedB, a, b, score, lang, tone }: {
   seedA: number;
   seedB: number;
   a: StandingRow | undefined;
@@ -345,8 +330,7 @@ function MatchCard({ label, seedA, seedB, a, b, score, lang, tone }: {
   const colors = TONE_CLASSES[tone];
   return (
     <article className={`rounded-2xl border bg-bg px-3 py-3 ${colors.card}`}>
-      <p className={`text-[10px] uppercase tracking-[0.15em] ${colors.heading}`}>{label}</p>
-      <div className="mt-2 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <TeamLine seed={seedA} row={a} lang={lang} />
         <p dir="ltr" className={`shrink-0 font-display text-xl tabular-nums ${colors.score}`}>{score}</p>
         <TeamLine seed={seedB} row={b} lang={lang} />
@@ -369,7 +353,7 @@ function TeamLine({ seed, row, lang }: { seed: number; row: StandingRow | undefi
   );
 }
 
-function SlotMatch({ label, left, right, score, tone }: { label: string; left: string; right: string; score: string; tone: RoundTone }) {
+function SlotMatch({ left, right, score, tone }: { left: string; right: string; score: string; tone: RoundTone }) {
   const colors = TONE_CLASSES[tone];
   return (
     <article className={`rounded-2xl border bg-bg px-3 py-3 ${colors.card}`}>

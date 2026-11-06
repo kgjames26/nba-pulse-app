@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
-import { formatTip } from "@/lib/nba/dates";
 import { getStandings } from "@/lib/nba/api";
-import { localeFor, phaseLabel, t, type Lang } from "@/lib/nba/i18n";
+import { t, type Lang } from "@/lib/nba/i18n";
 import type { StandingRow } from "@/lib/nba/types";
 import { UNKNOWN_COLOR } from "@/lib/nba/teams";
 import { PrimaryButton, TeamMark } from "./ui";
@@ -47,7 +46,6 @@ export function StandingsView({
     queryFn: () => getStandings({ data: { confirm: true } }),
   });
   if (!open) return null;
-  const locale = localeFor(lang);
   const table = query.data?.ok ? query.data.standings : null;
   const rows = side === "east" ? table?.east ?? [] : table?.west ?? [];
 
@@ -91,7 +89,6 @@ export function StandingsView({
             {table && (
               <p className="mt-3 text-xs text-faint">
                 {table.season}
-                {table.phase ? ` · ${phaseLabel(String(table.phase), lang)}` : ""} · {t(lang, "updated", { time: formatTip(table.fetchedAt, locale) })}
               </p>
             )}
             {query.isLoading && <div className="mt-4 h-40 animate-pulse rounded-card bg-surface" />}

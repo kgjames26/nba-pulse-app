@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { formatLocalTipWithDay, formatSlateDate, formatTip, slateRelation, type SlateRelation } from "@/lib/nba/dates";
+import { formatLocalTipWithDay, formatSlateDate, slateRelation, type SlateRelation } from "@/lib/nba/dates";
 import { localeFor, phaseLabel, statusKey, t, type Lang } from "@/lib/nba/i18n";
 import { presentGame, showResultsFor } from "@/lib/nba/present";
 import type { GameCard, Slate } from "@/lib/nba/types";
@@ -84,7 +84,7 @@ export function SlateView({
         onCup={onCup}
         onSettings={onSettings}
       >
-                <div dir="ltr" className="flex items-end justify-between gap-2">
+        <div dir="ltr" className="flex items-end justify-between gap-2">
           <IconButton label={t(lang, "archiveSlate")} onClick={() => onShift(-1)}>
             <ChevronLeft className="size-5" />
           </IconButton>
@@ -102,8 +102,7 @@ export function SlateView({
             <ChevronRight className="size-5" />
           </IconButton>
         </div>
-        <p className="mt-3 text-center text-xs text-faint">{t(lang, "swipeHint")}</p>
-            </PageHeader>
+      </PageHeader>
       <div ref={scroller} className="flex-1 px-4 pb-10">
         {loading && !slate && (
           <div className="flex flex-col gap-3" aria-hidden>
@@ -137,12 +136,6 @@ export function SlateView({
             </li>
           ))}
         </ul>
-        <details className="mt-6 text-sm text-muted">
-          <summary className="min-h-11 cursor-pointer text-fg">{t(lang, "rankTitle")}</summary>
-          <p className="mt-2">{t(lang, "rankBody")}</p>
-        </details>
-        {slate && <p className="mt-4 text-xs text-faint">{t(lang, "updated", { time: formatTip(slate.fetchedAt, locale) })}</p>}
-        <p className="mt-6 text-xs text-faint">{t(lang, "noAccount")}</p>
       </div>
     </section>
   );
@@ -183,7 +176,7 @@ function GameRow({
         <span>{status}</span>
         {period && <span>{period}</span>}
         {view.status === "pre" && <span>{formatLocalTipWithDay(game.tipoff, locale)}</span>}
-        {national.length > 0 && <span className="text-faint">{t(lang, "nationalTv")} · {national.join(" · ")}</span>}
+        {national.length > 0 && <span className="text-faint">{national.join(" · ")}</span>}
       </span>
     </button>
   );

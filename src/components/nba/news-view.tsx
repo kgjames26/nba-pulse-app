@@ -5,16 +5,15 @@ import { PageHeader } from "./section-nav";
 
 const COPY: Record<Lang, {
   title: string;
-  source: string;
   empty: string;
   error: string;
 }> = {
-  fr: { title: "Actualités", source: "Flux NBA · API ESPN", empty: "Aucune actualité disponible pour le moment.", error: "Le flux d’actualités n’a pas répondu." },
-  en: { title: "News", source: "NBA feed · ESPN API", empty: "No news is available right now.", error: "The news feed did not respond." },
-  es: { title: "Noticias", source: "Flujo NBA · API ESPN", empty: "No hay noticias disponibles por ahora.", error: "El servicio de noticias no respondió." },
-  tr: { title: "Haberler", source: "NBA akışı · ESPN API", empty: "Şu anda haber yok.", error: "Haber akışı yanıt vermedi." },
-  ar: { title: "الأخبار", source: "موجز NBA · واجهة ESPN", empty: "لا تتوفر أخبار الآن.", error: "لم يستجب موجز الأخبار." },
-  zh: { title: "新闻", source: "NBA 资讯 · ESPN API", empty: "目前没有可用新闻。", error: "新闻源没有响应。" },
+  fr: { title: "Actualités", empty: "Aucune actualité disponible pour le moment.", error: "Le flux d’actualités n’a pas répondu." },
+  en: { title: "News", empty: "No news is available right now.", error: "The news feed did not respond." },
+  es: { title: "Noticias", empty: "No hay noticias disponibles por ahora.", error: "El servicio de noticias no respondió." },
+  tr: { title: "Haberler", empty: "Şu anda haber yok.", error: "Haber akışı yanıt vermedi." },
+  ar: { title: "الأخبار", empty: "لا تتوفر أخبار الآن.", error: "لم يستجب موجز الأخبار." },
+  zh: { title: "新闻", empty: "目前没有可用新闻。", error: "新闻源没有响应。" },
 };
 
 export function NewsView({
@@ -93,16 +92,12 @@ export function NewsView({
                 <div className="p-4">
                   <p className="font-display text-2xl leading-tight">{article.headline}</p>
                   {article.description && <p className="mt-2 line-clamp-3 text-sm text-muted">{article.description}</p>}
-                  <p className="mt-3 text-xs text-faint">
-                    {article.byline ? `${article.byline} · ` : ""}
-                    {formatPublished(article.published, localeFor(lang)) || "ESPN"}
-                  </p>
+                  {formatPublished(article.published, localeFor(lang)) && <p className="mt-3 text-xs text-faint">{formatPublished(article.published, localeFor(lang))}</p>}
                 </div>
               </a>
             </li>
           ))}
         </ul>
-        <p className="mt-8 border-t border-line pt-3 text-center text-[10px] text-faint">{copy.source}</p>
       </div>
     </main>
   );
