@@ -602,10 +602,8 @@ function cupStageFromNote(note: string): CupStage | null {
 export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
   const months = [10, 11, 12];
   const fetchMonth = async (month: number) => {
-    const from = `${seasonYear}${String(month).padStart(2, "0")}01`;
-    const lastDay = month === 11 ? 30 : 31;
-    const to = `${seasonYear}${String(month).padStart(2, "0")}${String(lastDay).padStart(2, "0")}`;
-    return obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=300`, 30_000));
+    const monthKey = `${seasonYear}${String(month).padStart(2, "0")}`;
+    return obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${monthKey}&limit=300`, 30_000));
   };
   const results = await Promise.allSettled(months.map(fetchMonth));
   const bodies = results.map((result) => result.status === "fulfilled" ? result.value : null);
@@ -616,9 +614,7 @@ export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
   }
   if (bodies.every((body) => body == null)) {
     try {
-      const from = `${seasonYear}1001`;
-      const to = `${seasonYear}1231`;
-      bodies.push(obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=1000`, 30_000)));
+      bodies.push(obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${seasonYear}&limit=1000`, 30_000)));
     } catch { /* Throw the standard feed error below. */ }
   }
   if (bodies.every((body) => body == null)) throw new Error("feed");
