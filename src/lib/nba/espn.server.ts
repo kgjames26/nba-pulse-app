@@ -589,24 +589,38 @@ export type CupFeedGame = { game: GameCard; stage: CupStage; note: string };
 
 function cupStageFromNote(note: string): CupStage | null {
   const value = note.toLowerCase();
-  const cupMarker = /nba cup|emirates cup|in-season tournament|in season tournament|group play|quarterfinal|quarter-final|semifinal|semi-final|championship/.test(value);
-  if (!cupMarker) return null;
+  const cupMarker = /nba cup|emirates cup|in-season tournament|in season tournament/.test(value);
+  const groupMarker = /group(?:\\s+(?:play|[a-c]|[1-3]))?/.test(value);
+  if (!cupMarker && !groupMarker) return null;
   if (/championship|champion|nba cup final/.test(value)) return "final";
   if (/semifinal|semi-final/.test(value)) return "semifinal";
   if (/quarterfinal|quarter-final/.test(value)) return "quarterfinal";
-  if (/group play/.test(value)) return "group";
+  if (groupMarker || cupMarker) return "group";
   return null;
 }
 
 export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
-  const dateRanges = [[1, 31], [1, 30], [1, 31]] as const;
   const months = [10, 11, 12];
-  const bodies = await Promise.all(months.map(async (month, index) => {
-    const [first, last] = dateRanges[index]!;
-    const from = `${seasonYear}${String(month).padStart(2, "0")}${String(first).padStart(2, "0")}`;
-    const to = `${seasonYear}${String(month).padStart(2, "0")}${String(last).padStart(2, "0")}`;
+  const fetchMonth = async (month: number) => {
+    const from = `${seasonYear}${String(month).padStart(2, "0")}01`;
+    const lastDay = month === 11 ? 30 : 31;
+    const to = `${seasonYear}${String(month).padStart(2, "0")}${String(lastDay).padStart(2, "0")}`;
     return obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=300`, 30_000));
-  }));
+  };
+  const results = await Promise.allSettled(months.map(fetchMonth));
+  const bodies = results.map((result) => result.status === "fulfilled" ? result.value : null);
+  // Retry only failed month windows, one at a time, to avoid taking down the whole Cup view for one ESPN hiccup.
+  for (const index of results.flatMap((result, index) => result.status === "rejected" ? [index] : [])) {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    try { bodies[index] = await fetchMonth(months[index]!); } catch { /* Keep the successful month windows. */ }
+  }
+  if (bodies.every((body) => body == null)) {
+    try {
+      const from = `${seasonYear}1001`;
+      const to = `${seasonYear}1231`;
+      bodies.push(obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=1000`, 30_000)));
+    } catch { /* Throw the standard feed error below. */ }
+  }
   if (bodies.every((body) => body == null)) throw new Error("feed");
   const result = new Map<string, CupFeedGame>();
   for (const body of bodies) {
