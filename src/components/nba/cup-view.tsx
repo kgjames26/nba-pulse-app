@@ -26,13 +26,17 @@ const COPY: Record<Lang, {
   undecided: string;
   schedule: string;
   noGames: string;
+  games: string;
+  completed: string;
+  groups: string;
+  feedError: string;
 }> = {
-  fr: { title: "NBA Cup", groupPlay: "Phase de groupes", group: "Groupe", team: "Équipe", record: "Bilan", diff: "+/−", played: "MJ", wildCard: "Meilleur deuxième", wildcardRace: "Places qualificatives", knockout: "Phase finale", quarterfinals: "Quarts de finale", semifinals: "Demi-finales", final: "Finale NBA Cup", undecided: "À déterminer", schedule: "Matchs de la Cup", noGames: "Aucun match de groupe trouvé pour cette conférence." },
-  en: { title: "NBA Cup", groupPlay: "Group play", group: "Group", team: "Team", record: "Record", diff: "+/−", played: "GP", wildCard: "Best runner-up", wildcardRace: "Qualifying places", knockout: "Knockout stage", quarterfinals: "Quarterfinals", semifinals: "Semifinals", final: "NBA Cup Final", undecided: "To be determined", schedule: "Cup games", noGames: "No group games found for this conference." },
-  es: { title: "NBA Cup", groupPlay: "Fase de grupos", group: "Grupo", team: "Equipo", record: "Récord", diff: "+/−", played: "PJ", wildCard: "Mejor segundo", wildcardRace: "Plazas clasificatorias", knockout: "Eliminatorias", quarterfinals: "Cuartos de final", semifinals: "Semifinales", final: "Final de la NBA Cup", undecided: "Por determinar", schedule: "Partidos de la Cup", noGames: "No se encontraron partidos de grupo para esta conferencia." },
-  tr: { title: "NBA Cup", groupPlay: "Grup aşaması", group: "Grup", team: "Takım", record: "Galibiyet–mağlubiyet", diff: "+/−", played: "O", wildCard: "En iyi ikinci", wildcardRace: "Sıralama", knockout: "Eleme aşaması", quarterfinals: "Çeyrek finaller", semifinals: "Yarı finaller", final: "NBA Cup Finali", undecided: "Belirlenecek", schedule: "Cup maçları", noGames: "Bu konferans için grup maçı bulunamadı." },
-  ar: { title: "كأس NBA", groupPlay: "دور المجموعات", group: "المجموعة", team: "الفريق", record: "السجل", diff: "+/−", played: "لعب", wildCard: "أفضل وصيف", wildcardRace: "مراكز التأهل", knockout: "الأدوار الإقصائية", quarterfinals: "ربع النهائي", semifinals: "نصف النهائي", final: "نهائي كأس NBA", undecided: "يُحدد لاحقًا", schedule: "مباريات الكأس", noGames: "لا توجد مباريات مجموعات لهذا المؤتمر." },
-  zh: { title: "NBA 杯", groupPlay: "小组赛", group: "组", team: "球队", record: "胜负", diff: "+/−", played: "场", wildCard: "最佳小组第二", wildcardRace: "晋级席位", knockout: "淘汰赛", quarterfinals: "四分之一决赛", semifinals: "半决赛", final: "NBA 杯决赛", undecided: "待定", schedule: "杯赛", noGames: "该分区暂无小组赛。" },
+  fr: { title: "NBA Cup", groupPlay: "Phase de groupes", group: "Groupe", team: "Équipe", record: "Bilan", diff: "+/−", played: "MJ", wildCard: "Meilleur deuxième", wildcardRace: "Places qualificatives", knockout: "Phase finale", quarterfinals: "Quarts de finale", semifinals: "Demi-finales", final: "Finale NBA Cup", undecided: "À déterminer", schedule: "Matchs de la Cup", noGames: "Aucun match de groupe trouvé pour cette conférence.", games: "Matchs", completed: "Terminés", groups: "Groupes", feedError: "Les données de la NBA Cup sont momentanément indisponibles." },
+  en: { title: "NBA Cup", groupPlay: "Group play", group: "Group", team: "Team", record: "Record", diff: "+/−", played: "GP", wildCard: "Best runner-up", wildcardRace: "Qualifying places", knockout: "Knockout stage", quarterfinals: "Quarterfinals", semifinals: "Semifinals", final: "NBA Cup Final", undecided: "To be determined", schedule: "Cup games", noGames: "No group games found for this conference.", games: "Games", completed: "Final", groups: "Groups", feedError: "NBA Cup data is temporarily unavailable." },
+  es: { title: "NBA Cup", groupPlay: "Fase de grupos", group: "Grupo", team: "Equipo", record: "Récord", diff: "+/−", played: "PJ", wildCard: "Mejor segundo", wildcardRace: "Plazas clasificatorias", knockout: "Eliminatorias", quarterfinals: "Cuartos de final", semifinals: "Semifinales", final: "Final de la NBA Cup", undecided: "Por determinar", schedule: "Partidos de la Cup", noGames: "No se encontraron partidos de grupo para esta conferencia.", games: "Partidos", completed: "Finalizados", groups: "Grupos", feedError: "Los datos de la NBA Cup no están disponibles temporalmente." },
+  tr: { title: "NBA Cup", groupPlay: "Grup aşaması", group: "Grup", team: "Takım", record: "Galibiyet–mağlubiyet", diff: "+/−", played: "O", wildCard: "En iyi ikinci", wildcardRace: "Sıralama", knockout: "Eleme aşaması", quarterfinals: "Çeyrek finaller", semifinals: "Yarı finaller", final: "NBA Cup Finali", undecided: "Belirlenecek", schedule: "Cup maçları", noGames: "Bu konferans için grup maçı bulunamadı.", games: "Maçlar", completed: "Tamamlandı", groups: "Gruplar", feedError: "NBA Cup verileri geçici olarak kullanılamıyor." },
+  ar: { title: "كأس NBA", groupPlay: "دور المجموعات", group: "المجموعة", team: "الفريق", record: "السجل", diff: "+/−", played: "لعب", wildCard: "أفضل وصيف", wildcardRace: "مراكز التأهل", knockout: "الأدوار الإقصائية", quarterfinals: "ربع النهائي", semifinals: "نصف النهائي", final: "نهائي كأس NBA", undecided: "يُحدد لاحقًا", schedule: "مباريات الكأس", noGames: "لا توجد مباريات مجموعات لهذا المؤتمر.", games: "المباريات", completed: "انتهت", groups: "المجموعات", feedError: "بيانات كأس NBA غير متاحة مؤقتًا." },
+  zh: { title: "NBA 杯", groupPlay: "小组赛", group: "组", team: "球队", record: "胜负", diff: "+/−", played: "场", wildCard: "最佳小组第二", wildcardRace: "晋级席位", knockout: "淘汰赛", quarterfinals: "四分之一决赛", semifinals: "半决赛", final: "NBA 杯决赛", undecided: "待定", schedule: "杯赛", noGames: "该分区暂无小组赛。", games: "场比赛", completed: "已结束", groups: "小组", feedError: "NBA 杯数据暂时无法获取。" },
 };
 
 export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, onNews, onPlayoff, onSettings }: {
@@ -59,6 +63,8 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
     ? [{ left: rankedWinners[0], right: wildcard }, { left: rankedWinners[1], right: rankedWinners[2] }]
     : [];
   const shownGames = [...games].sort((a, b) => a.game.tipoff.localeCompare(b.game.tipoff));
+  const seasonLabel = cup?.season ?? seasonYear + "-" + String(seasonYear + 1).slice(-2);
+  const completedCount = cup?.games.filter((item) => item.game.status === "post").length ?? 0;
 
   return <main className="fixed inset-0 z-30 overflow-x-hidden overflow-y-auto bg-bg">
     <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
@@ -80,10 +86,34 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
         <div className="mt-5 flex gap-2 sm:max-w-sm">{(["east", "west"] as const).map((key) =>
           <button key={key} type="button" onClick={() => setConference(key)} aria-pressed={conference === key}
             className={conference === key ? "min-h-11 flex-1 rounded-full bg-accent text-sm text-accent-ink" : "min-h-11 flex-1 rounded-full border border-line text-sm"}>{t(lang, key)}</button>)}</div>
+        <section className="relative isolate mt-5 overflow-hidden rounded-[1.8rem] border border-amber-300/20 bg-[radial-gradient(ellipse_at_85%_15%,rgba(232,174,90,.2),transparent_38%),linear-gradient(135deg,#19130f_0%,#101114_55%,#18120d_100%)] px-5 py-5 shadow-[0_18px_55px_rgba(0,0,0,.3)] sm:px-7 sm:py-7">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 size-56 rounded-full border border-amber-200/10 sm:size-72" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-3 -top-7 size-40 rounded-full border border-amber-200/10 sm:size-52" />
+          <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[.22em] text-amber-100/70">
+                <Trophy aria-hidden="true" className="size-4 text-amber-300" />
+                <span>{copy.groupPlay}</span>
+                <span className="rounded-full border border-amber-200/20 bg-amber-100/[.07] px-2.5 py-1 text-amber-100">{seasonLabel}</span>
+              </div>
+              <h2 className="mt-3 font-display text-5xl leading-[.85] tracking-tight text-white sm:text-7xl">NBA <span className="text-amber-300">CUP</span></h2>
+              <p className="mt-3 text-xs text-white/55">{conference === "east" ? t(lang, "east") : t(lang, "west")} · {copy.groupPlay}</p>
+            </div>
+            <div className="grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-black/20 px-1 py-3 sm:min-w-[360px]">
+              <CupMetric label={copy.groups} value={cup ? String(groups.length) : "—"} />
+              <CupMetric label={copy.games} value={cup ? String(cup.games.length) : "—"} />
+              <CupMetric label={copy.completed} value={cup ? String(completedCount) : "—"} />
+            </div>
+          </div>
+          <div className="relative mt-6 flex items-center justify-between border-t border-white/10 pt-3 text-[10px] uppercase tracking-[.17em] text-white/50">
+            <span>{copy.schedule}</span>
+            <span>{query.isFetching ? "•••" : cup ? seasonLabel : "—"}</span>
+          </div>
+        </section>
         <section className="mt-5">
           <div className="mb-3 flex items-end justify-between gap-2"><div><h2 className="font-display text-2xl">{copy.groupPlay}</h2><p className="text-xs text-faint">{cup?.season ?? seasonYear + "-" + String(seasonYear + 1).slice(-2)}</p></div></div>
           {query.isLoading && <div className="h-36 animate-pulse rounded-card bg-surface" />}
-          {(query.isError || query.data?.ok === false) && <div className="rounded-card border border-line bg-surface p-4"><p>{t(lang, "loadError")}</p><button type="button" onClick={() => void query.refetch()} className="mt-3 min-h-10 rounded-full bg-accent px-4 text-sm text-accent-ink">{t(lang, "retry")}</button></div>}
+          {(query.isError || query.data?.ok === false) && <div role="status" aria-live="polite" className="mb-3 flex flex-col gap-4 rounded-2xl border border-amber-200/15 bg-[linear-gradient(120deg,rgba(232,174,90,.09),rgba(21,22,26,.95)_48%)] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"><div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl border border-amber-200/15 bg-amber-200/[.08]"><Trophy aria-hidden="true" className="size-5 text-amber-200" /></span><div><p className="text-sm font-semibold text-white">{copy.feedError}</p><p className="mt-1 text-xs text-white/45">{seasonLabel}</p></div></div><button type="button" disabled={query.isFetching} onClick={() => void query.refetch()} className="min-h-10 rounded-full bg-accent px-5 text-sm font-semibold text-accent-ink disabled:opacity-60">{query.isFetching ? "…" : t(lang, "retry")}</button></div>}
           {cup && groups.length === 0 && <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted">{copy.noGames}</div>}
           {cup && <div dir="ltr" className="grid gap-3 lg:grid-cols-3">{groups.map((group) => <GroupTable key={group.name} group={group} copy={copy} />)}</div>}
         </section>
@@ -105,6 +135,13 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
       </>}
     </div>
   </main>;
+}
+
+function CupMetric({ label, value }: { label: string; value: string }) {
+  return <div className="px-2 text-center sm:px-4">
+    <strong className="block font-display text-2xl tabular-nums text-white sm:text-3xl">{value}</strong>
+    <span className="mt-1 block truncate text-[9px] font-semibold uppercase tracking-[.12em] text-white/45 sm:text-[10px]">{label}</span>
+  </div>;
 }
 
 function GroupTable({ group, copy }: { group: CupGroup; copy: typeof COPY[Lang] }) {
