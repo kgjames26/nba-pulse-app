@@ -43,13 +43,6 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
         />
       </div>
 
-      <div className="intro-ball" aria-hidden="true">
-        <svg viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r="29" />
-          <path d="M7 22c17 2 33 18 35 35M26 4c2 17 18 33 35 35M11 11c13 8 34 29 42 42M53 11C40 19 19 40 11 53" />
-        </svg>
-      </div>
-
       <div className="intro-impact" aria-hidden="true"><i /><i /><i /></div>
       <div className="intro-sparks" aria-hidden="true">
         <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />

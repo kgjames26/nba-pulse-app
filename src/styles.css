@@ -102,7 +102,7 @@
   color: #f7f3ea;
   cursor: pointer;
   touch-action: manipulation;
-  animation: intro-exit 3.8s cubic-bezier(.7, 0, .84, 0) both;
+  animation: intro-exit 3.8s cubic-bezier(.4, 0, .2, 1) both;
 }
 .nba-intro::before,
 .nba-intro::after {
@@ -121,7 +121,7 @@
 .nba-intro::after {
   opacity: 0;
   background: radial-gradient(circle at 50% 40%, rgba(255,247,218,.95), rgba(255,177,66,.45) 11%, transparent 43%);
-  animation: intro-whiteout 3.8s ease-out both;
+  animation: intro-whiteout 3.8s ease-in-out both;
 }
 .intro-arena {
   position: absolute;
@@ -133,7 +133,7 @@
     radial-gradient(ellipse at 88% 31%, rgba(239,79,70,.24), transparent 24%),
     radial-gradient(ellipse at 50% 72%, rgba(159,79,32,.38), transparent 48%),
     #08090d;
-  animation: intro-arena 3.8s ease both;
+  animation: intro-arena 3.8s cubic-bezier(.4, 0, .2, 1) both;
 }
 .intro-court {
   position: absolute;
@@ -152,7 +152,7 @@
   box-shadow: inset 0 0 60px rgba(0,0,0,.45), 0 -12px 60px rgba(255,157,64,.28);
   transform: translate(-50%, 12vh) perspective(900px) rotateX(69deg) scale(.48);
   transform-origin: 50% 0;
-  animation: intro-dive 3.8s cubic-bezier(.16,.76,.18,1) both;
+  animation: intro-dive 3.8s cubic-bezier(.3, .72, .18, 1) both;
 }
 .intro-court__key {
   position: absolute;
@@ -182,7 +182,7 @@
   opacity: 0;
   background: linear-gradient(180deg, rgba(255,246,216,.88), rgba(255,185,83,.15) 47%, transparent 82%);
   transform-origin: 50% 0;
-  animation: intro-beam 1.6s ease-in-out both;
+  animation: intro-beam 1.85s cubic-bezier(.22,.68,.18,1) both;
 }
 .intro-beams i:nth-child(1) { transform: rotate(-38deg); animation-delay: .12s; }
 .intro-beams i:nth-child(2) { transform: rotate(-16deg); animation-delay: .24s; }
@@ -207,7 +207,7 @@
   height: 130px;
   transform: translateX(-50%) perspective(500px) rotateX(-8deg) scale(.72);
   opacity: 0;
-  animation: intro-rim 3.8s ease both;
+  animation: intro-rim 3.8s cubic-bezier(.4, 0, .2, 1) both;
 }
 .intro-rim__backboard {
   position: absolute;
@@ -250,7 +250,7 @@
   z-index: 3;
   width: min(92vw, 800px);
   transform: translateX(-50%);
-  animation: intro-athlete 3.8s cubic-bezier(.16,.76,.18,1) both;
+  animation: intro-athlete 3.8s cubic-bezier(.24,.72,.18,1) both;
 }
 .intro-athlete__player {
   width: 100%;
@@ -258,20 +258,6 @@
   object-fit: contain;
   filter: drop-shadow(0 24px 42px rgba(0,0,0,.82)) saturate(1.16) contrast(1.08);
 }
-.intro-ball {
-  position: absolute;
-  left: 50%;
-  top: 33%;
-  z-index: 5;
-  width: clamp(34px, 8vw, 76px);
-  aspect-ratio: 1;
-  filter: drop-shadow(0 0 15px rgba(255,144,42,.9));
-  opacity: 0;
-  animation: intro-ball 3.8s cubic-bezier(.2,.76,.16,1) both;
-}
-.intro-ball svg { width: 100%; height: 100%; overflow: visible; }
-.intro-ball circle { fill: #ee7c25; stroke: #ffd38a; stroke-width: 2; }
-.intro-ball path { fill: none; stroke: #4a2414; stroke-width: 2.5; }
 .intro-impact {
   position: absolute;
   left: 50%;
@@ -281,7 +267,7 @@
   aspect-ratio: 1;
   opacity: 0;
   transform: translate(-50%, -50%) scale(.2);
-  animation: intro-impact 3.8s ease-out both;
+  animation: intro-impact 3.8s cubic-bezier(.16,1,.3,1) both;
 }
 .intro-impact i {
   position: absolute;
@@ -334,11 +320,11 @@
   white-space: nowrap;
   opacity: 0;
   transform: translate(-50%, 30px) scale(.58);
-  animation: intro-brand 3.8s cubic-bezier(.16,.76,.18,1) both;
+  animation: intro-brand 3.8s cubic-bezier(.24,.72,.18,1) both;
 }
 .intro-brand b { color: #e8ae5a; font-weight: inherit; }
 @keyframes intro-exit { 0%, 83% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-@keyframes intro-whiteout { 0%, 43% { opacity: 0; } 48% { opacity: .78; } 53%, 100% { opacity: 0; } }
+@keyframes intro-whiteout { 0%, 43% { opacity: 0; } 47% { opacity: .58; } 50% { opacity: .18; } 57%, 100% { opacity: 0; } }
 @keyframes intro-arena { 0%, 8% { filter: brightness(.28) saturate(.55); transform: scale(1.14); } 25%, 66% { filter: brightness(1.25) saturate(1.2); transform: scale(1); } 100% { filter: brightness(.12) saturate(.8); transform: scale(1.42); } }
 @keyframes intro-dive {
   0%, 12% { opacity: .04; transform: translate(-50%, 17vh) perspective(900px) rotateX(72deg) scale(.38); }
@@ -346,7 +332,8 @@
   44% { opacity: 1; transform: translate(-50%, 3vh) perspective(900px) rotateX(64deg) scale(.78); }
   58% { opacity: 1; transform: translate(-50%, -1vh) perspective(900px) rotateX(54deg) scale(1.12); }
   72% { opacity: 1; transform: translate(-50%, -9vh) perspective(900px) rotateX(37deg) scale(2.4); }
-  90% { opacity: 1; transform: translate(-50%, -26vh) perspective(900px) rotateX(14deg) scale(7.8); }
+  82% { opacity: 1; transform: translate(-50%, -16vh) perspective(900px) rotateX(28deg) scale(3.9); }
+  91% { opacity: .95; transform: translate(-50%, -25vh) perspective(900px) rotateX(15deg) scale(7.4); }
   100% { opacity: 0; transform: translate(-50%, -38vh) perspective(900px) rotateX(0deg) scale(13); }
 }
 @keyframes intro-beam { 0% { opacity: 0; scale: .65; } 28% { opacity: .8; } 100% { opacity: 0; scale: 1.4; } }
@@ -357,18 +344,11 @@
   36% { opacity: 1; transform: translate(-50%, 0) scale(.98); }
   45% { opacity: 1; transform: translate(-50%, -2vh) scale(1.04); }
   53% { opacity: 1; transform: translate(-50%, -4vh) scale(1.13); filter: brightness(1.18); }
-  64% { opacity: 0; transform: translate(-50%, -11vh) scale(1.55); filter: blur(9px) brightness(1.7); }
+  59% { opacity: .72; transform: translate(-50%, -7vh) scale(1.3); filter: blur(3px) brightness(1.35); }
+  66% { opacity: 0; transform: translate(-50%, -11vh) scale(1.55); filter: blur(9px) brightness(1.7); }
   100% { opacity: 0; transform: translate(-50%, -15vh) scale(1.8); filter: blur(14px); }
 }
-@keyframes intro-ball {
-  0%, 20% { opacity: 0; transform: translate(-36vw, 36vh) rotate(-280deg) scale(.25); }
-  30% { opacity: 1; transform: translate(-21vw, 23vh) rotate(-150deg) scale(.58); }
-  42% { opacity: 1; transform: translate(-5vw, 8vh) rotate(-40deg) scale(.92); }
-  48% { opacity: 1; transform: translate(4vw, -2vh) rotate(40deg) scale(1.1); }
-  53% { opacity: 0; transform: translate(11vw, -14vh) rotate(120deg) scale(1.5); }
-  100% { opacity: 0; transform: translate(18vw, -20vh) rotate(180deg) scale(1.7); }
-}
-@keyframes intro-impact { 0%, 43% { opacity: 0; transform: translate(-50%, -50%) scale(.2); } 48% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 56% { opacity: 0; transform: translate(-50%, -50%) scale(4.8); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(6.2); } }
+@keyframes intro-impact { 0%, 43% { opacity: 0; transform: translate(-50%, -50%) scale(.2); } 48% { opacity: .92; transform: translate(-50%, -50%) scale(1); } 53% { opacity: .35; transform: translate(-50%, -50%) scale(3); } 60%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(6.2); } }
 @keyframes intro-ripple { 0% { opacity: .9; transform: scale(.25); } 100% { opacity: 0; transform: scale(5.8); } }
 @keyframes intro-spark { 0% { opacity: 0; transform: translate(0, 0) rotate(var(--r)) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1.15); } }
 @keyframes intro-speed { 0%, 43% { opacity: 0; transform: scale(.72); } 49% { opacity: .95; transform: scale(1); } 66% { opacity: .46; transform: scale(1.55); } 100% { opacity: 0; transform: scale(3.4); } }
