@@ -128,6 +128,8 @@ export type PlayoffSeriesScore = {
   teamBWins: number;
   liveScoreA: number | null;
   liveScoreB: number | null;
+  lastScoreA: number | null;
+  lastScoreB: number | null;
 };
 
 export type Standings = {

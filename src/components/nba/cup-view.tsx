@@ -42,7 +42,8 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const [conference, setConference] = useState<"east" | "west">("east");
   const now = new Date();
   const seasonYear = now.getUTCMonth() >= 8 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
-  const query = useQuery({ queryKey: ["nba-cup", seasonYear], enabled: open && canSee, staleTime: 45_000,
+  const query = useQuery({ queryKey: ["nba-cup", seasonYear], enabled: open && canSee, staleTime: 30_000,
+    refetchInterval: (current) => current.state.data?.ok && current.state.data.cup.games.some((item) => item.game.status === "in") ? 30_000 : 300_000,
     queryFn: () => getCup({ data: { seasonYear } }) });
   if (!open) return null;
   const copy = COPY[lang];
@@ -57,9 +58,7 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
   const projectedQuarterfinals: CupPair[] = rankedWinners.length === 3 && wildcard
     ? [{ left: rankedWinners[0], right: wildcard }, { left: rankedWinners[1], right: rankedWinners[2] }]
     : [];
-  const schedule = games.filter((item) => item.game.status === "pre" || item.game.status === "in").slice(0, 5);
-  const recent = games.filter((item) => item.game.status === "post").slice(-5).reverse();
-  const shownGames = schedule.length ? schedule : recent;
+  const shownGames = [...games].sort((a, b) => a.game.tipoff.localeCompare(b.game.tipoff));
 
   return <main className="fixed inset-0 z-30 overflow-x-hidden overflow-y-auto bg-bg">
     <div className="mx-auto min-h-screen max-w-6xl px-3 pb-12 pt-4">
@@ -84,7 +83,8 @@ export function CupView({ lang, open, canSee, onUnlock, onScore, onStandings, on
         <section className="mt-5">
           <div className="mb-3 flex items-end justify-between gap-2"><div><h2 className="font-display text-2xl">{copy.groupPlay}</h2><p className="text-xs text-faint">{cup?.season ?? seasonYear + "-" + String(seasonYear + 1).slice(-2)}</p></div></div>
           {query.isLoading && <div className="h-36 animate-pulse rounded-card bg-surface" />}
-          {query.data && !query.data.ok && <div className="rounded-card border border-line bg-surface p-4"><p>{t(lang, "loadError")}</p><button type="button" onClick={() => void query.refetch()} className="mt-3 min-h-10 rounded-full bg-accent px-4 text-sm text-accent-ink">{t(lang, "retry")}</button></div>}
+          {(query.isError || query.data?.ok === false) && <div className="rounded-card border border-line bg-surface p-4"><p>{t(lang, "loadError")}</p><button type="button" onClick={() => void query.refetch()} className="mt-3 min-h-10 rounded-full bg-accent px-4 text-sm text-accent-ink">{t(lang, "retry")}</button></div>}
+          {cup && groups.length === 0 && <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted">{copy.noGames}</div>}
           {cup && <div dir="ltr" className="grid gap-3 lg:grid-cols-3">{groups.map((group) => <GroupTable key={group.name} group={group} copy={copy} />)}</div>}
         </section>
         {cup && <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">

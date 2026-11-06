@@ -48,7 +48,7 @@ export function IntroAnimation({ onComplete }: { onComplete: () => void }) {
         <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
       </div>
 
-      <div className="intro-brand" aria-hidden="true">NBA <b>PULSE</b></div>
+      <div className="intro-brand" aria-hidden="true"><span className="intro-brand__nba">NBA</span><span className="intro-brand__pulse">PULSE</span><span className="intro-brand__rule" /></div>
     </div>
   );
 }

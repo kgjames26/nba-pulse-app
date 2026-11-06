@@ -455,8 +455,8 @@ export async function loadGame(id: string): Promise<GameDetail> {
 }
 
 export async function loadPlayoffSeriesScores(seasonYear: number): Promise<PlayoffSeriesScore[]> {
-  const path = `/apis/site/v2/sports/basketball/nba/scoreboard?dates=${seasonYear}&seasontype=3`;
-  const body = obj(await espn(path, 45_000));
+  const path = `/apis/site/v2/sports/basketball/nba/scoreboard?dates=${seasonYear}0401-${seasonYear}0701&seasontype=3`;
+  const body = obj(await espn(path, 30_000));
   if (!body) throw new Error("feed");
   const series = new Map<string, PlayoffSeriesScore>();
 
@@ -482,6 +482,8 @@ export async function loadPlayoffSeriesScores(seasonYear: number): Promise<Playo
       teamBWins: 0,
       liveScoreA: null,
       liveScoreB: null,
+      lastScoreA: null,
+      lastScoreB: null,
     };
     const homeScore = num(home?.score);
     const awayScore = num(away?.score);
@@ -489,14 +491,16 @@ export async function loadPlayoffSeriesScores(seasonYear: number): Promise<Playo
     const state = str(status?.state);
     const completed = status?.completed === true || state === "post";
 
-    if (completed && homeScore != null && awayScore != null && homeScore !== awayScore) {
-      const homeWon = obj(competitors.find((item) => obj(item)?.winner === true)) === home;
-      const homeWins = homeWon || (!competitors.some((item) => obj(item)?.winner === true) && homeScore > awayScore);
-      if (homeWins) {
-        if (homeId === teamAId) score.teamAWins += 1;
-        else score.teamBWins += 1;
-      } else {
-        if (awayId === teamAId) score.teamAWins += 1;
+    if (completed && homeScore != null && awayScore != null) {
+      score.lastScoreA = homeId === teamAId ? homeScore : awayScore;
+      score.lastScoreB = homeId === teamBId ? homeScore : awayScore;
+      if (homeScore !== awayScore) {
+        const homeWon = obj(competitors.find((item) => obj(item)?.winner === true)) === home;
+        const homeWins = homeWon || (!competitors.some((item) => obj(item)?.winner === true) && homeScore > awayScore);
+        if (homeWins) {
+          if (homeId === teamAId) score.teamAWins += 1;
+          else score.teamBWins += 1;
+        } else if (awayId === teamAId) score.teamAWins += 1;
         else score.teamBWins += 1;
       }
     } else if (state === "in" && homeScore != null && awayScore != null) {
@@ -585,8 +589,9 @@ export type CupFeedGame = { game: GameCard; stage: CupStage; note: string };
 
 function cupStageFromNote(note: string): CupStage | null {
   const value = note.toLowerCase();
-  if (!/nba cup|emirates cup|in-season tournament/.test(value)) return null;
-  if (/championship|champion/.test(value)) return "final";
+  const cupMarker = /nba cup|emirates cup|in-season tournament|in season tournament|group play|quarterfinal|quarter-final|semifinal|semi-final|championship/.test(value);
+  if (!cupMarker) return null;
+  if (/championship|champion|nba cup final/.test(value)) return "final";
   if (/semifinal|semi-final/.test(value)) return "semifinal";
   if (/quarterfinal|quarter-final/.test(value)) return "quarterfinal";
   if (/group play/.test(value)) return "group";
@@ -594,21 +599,30 @@ function cupStageFromNote(note: string): CupStage | null {
 }
 
 export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
-  const from = String(seasonYear) + "1001";
-  const to = String(seasonYear) + "1231";
-  const body = obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=1000`, 60_000));
-  if (!body) throw new Error("feed");
-  return arr(body.events).flatMap((event) => {
-    const row = obj(event);
-    const comp = obj(arr(row?.competitions)[0]);
-    if (!row || !comp) return [];
-    const notes = arr(comp.notes).flatMap((item) => {
-      const note = obj(item);
-      return [str(note?.headline), str(note?.description)].filter(Boolean);
-    });
-    const noteText = [...notes, str(comp.note), str(row.name)].join(" · ");
-    const stage = cupStageFromNote(noteText);
-    const game = eventToGame(event);
-    return stage && game ? [{ game, stage, note: noteText }] : [];
-  });
+  const dateRanges = [[1, 31], [1, 30], [1, 31]] as const;
+  const months = [10, 11, 12];
+  const bodies = await Promise.all(months.map(async (month, index) => {
+    const [first, last] = dateRanges[index]!;
+    const from = `${seasonYear}${String(month).padStart(2, "0")}${String(first).padStart(2, "0")}`;
+    const to = `${seasonYear}${String(month).padStart(2, "0")}${String(last).padStart(2, "0")}`;
+    return obj(await espn(`/apis/site/v2/sports/basketball/nba/scoreboard?dates=${from}-${to}&limit=300`, 30_000));
+  }));
+  if (bodies.every((body) => body == null)) throw new Error("feed");
+  const result = new Map<string, CupFeedGame>();
+  for (const body of bodies) {
+    for (const event of arr(body?.events)) {
+      const row = obj(event);
+      const comp = obj(arr(row?.competitions)[0]);
+      if (!row || !comp) continue;
+      const notes = arr(comp.notes).flatMap((item) => {
+        const note = obj(item);
+        return [str(note?.headline), str(note?.description)].filter(Boolean);
+      });
+      const noteText = [...notes, str(comp.note), str(row.name), str(row.shortName)].join(" · ");
+      const stage = cupStageFromNote(noteText);
+      const game = eventToGame(event);
+      if (stage && game) result.set(game.id, { game, stage, note: noteText });
+    }
+  }
+  return [...result.values()].sort((a, b) => a.game.tipoff.localeCompare(b.game.tipoff));
 }

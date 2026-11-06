@@ -313,16 +313,48 @@
   left: 50%;
   top: 56%;
   z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   color: #f6f1e8;
-  font: 800 clamp(46px, 13vw, 112px)/.9 var(--font-display);
-  letter-spacing: .025em;
-  text-shadow: 0 4px 36px rgba(0,0,0,.9), 0 0 38px rgba(255,171,66,.34);
+  font: 900 clamp(68px, 19vw, 164px)/.68 var(--font-display);
+  letter-spacing: -.035em;
+  text-shadow: 0 4px 36px rgba(0,0,0,.95), 0 0 52px rgba(255,171,66,.48), 5px 6px 0 rgba(105,53,24,.62);
   white-space: nowrap;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,.6));
   opacity: 0;
   transform: translate(-50%, 30px) scale(.58);
   animation: intro-brand 3.8s cubic-bezier(.24,.72,.18,1) both;
 }
-.intro-brand b { color: #e8ae5a; font-weight: inherit; }
+.intro-brand__nba {
+  font-size: .42em;
+  line-height: .85;
+  letter-spacing: .3em;
+  padding-inline-start: .3em;
+  color: #f2e9d7;
+  text-shadow: 0 2px 24px rgba(255,203,126,.7);
+}
+.intro-brand__pulse {
+  color: #e8ae5a;
+  font-style: italic;
+  letter-spacing: -.015em;
+  -webkit-text-stroke: 1px rgba(255,229,179,.25);
+  background: linear-gradient(180deg, #fff2ce 0%, #f3c166 42%, #bc7735 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+.intro-brand__rule {
+  width: 88%;
+  height: 3px;
+  margin-top: .28em;
+  background: linear-gradient(90deg, transparent, #e9b75d 20% 80%, transparent);
+  box-shadow: 0 0 22px rgba(255,184,76,.88);
+  transform: scaleX(.08);
+  transform-origin: center;
+  animation: intro-brand-rule 3.8s cubic-bezier(.22,.68,.18,1) both;
+}
 @keyframes intro-exit { 0%, 83% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 @keyframes intro-whiteout { 0%, 43% { opacity: 0; } 47% { opacity: .58; } 50% { opacity: .18; } 57%, 100% { opacity: 0; } }
 @keyframes intro-arena { 0%, 8% { filter: brightness(.28) saturate(.55); transform: scale(1.14); } 25%, 66% { filter: brightness(1.25) saturate(1.2); transform: scale(1); } 100% { filter: brightness(.12) saturate(.8); transform: scale(1.42); } }
@@ -352,7 +384,8 @@
 @keyframes intro-ripple { 0% { opacity: .9; transform: scale(.25); } 100% { opacity: 0; transform: scale(5.8); } }
 @keyframes intro-spark { 0% { opacity: 0; transform: translate(0, 0) rotate(var(--r)) scale(.4); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1.15); } }
 @keyframes intro-speed { 0%, 43% { opacity: 0; transform: scale(.72); } 49% { opacity: .95; transform: scale(1); } 66% { opacity: .46; transform: scale(1.55); } 100% { opacity: 0; transform: scale(3.4); } }
-@keyframes intro-brand { 0%, 48% { opacity: 0; transform: translate(-50%, 30px) scale(.58); filter: blur(14px); } 58% { opacity: 1; transform: translate(-50%, 0) scale(1.08); filter: blur(0); } 69%, 78% { opacity: 1; transform: translate(-50%, -2vh) scale(1); } 100% { opacity: 0; transform: translate(-50%, -15vh) scale(1.85); filter: blur(9px); } }
+@keyframes intro-brand { 0%, 47% { opacity: 0; transform: translate(-50%, 34px) scale(.48); filter: blur(18px); } 58% { opacity: 1; transform: translate(-50%, 0) scale(1.06); filter: blur(0); } 66%, 79% { opacity: 1; transform: translate(-50%, -1vh) scale(1); } 100% { opacity: 0; transform: translate(-50%, -15vh) scale(1.9); filter: blur(10px); } }
+@keyframes intro-brand-rule { 0%, 55% { transform: scaleX(.04); opacity: 0; } 66%, 78% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1.4); opacity: 0; } }
 @media (max-width: 480px) {
   .intro-court { top: 61%; width: 210vw; }
   .intro-court__key { width: 46vw; height: 46vw; }
