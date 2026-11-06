@@ -62,12 +62,20 @@ function inferGroups(groupEvents: Awaited<ReturnType<typeof loadCupFeed>>, seaso
     if (conference && ids.length >= 2) components.push({ conference, ids, labelHint: null });
   }
   const groups: GroupBucket[] = [];
+  const official2026Groups: GroupBucket[] = seasonYear === 2026
+    ? Object.entries(LABELS_2026).flatMap(([key, labelHint]) => {
+      const ids = key.split(",");
+      const conference = teamConference(ids[0] ?? "");
+      return conference ? [{conference, ids, labelHint}] : [];
+    })
+    : [];
+  const sourceGroups = official2026Groups.length === 6 ? official2026Groups : components;
   for (const conference of ["east", "west"] as const) {
-    const side = components.filter((group) => group.conference === conference)
+    const side = sourceGroups.filter((group) => group.conference === conference)
       .sort((a, b) => groupName(a.ids).localeCompare(groupName(b.ids)));
     side.forEach((group, index) => {
       const official2026 = LABELS_2026[group.ids.map(Number).sort((a, b) => a - b).join(",")];
-      groups.push({ ...group, labelHint: seasonYear === 2026 ? official2026 ?? String.fromCharCode(65 + index) : String(index + 1) });
+      groups.push({ ...group, labelHint: group.labelHint ?? (seasonYear === 2026 ? official2026 ?? String.fromCharCode(65 + index) : String(index + 1)) });
     });
   }
   return groups;
