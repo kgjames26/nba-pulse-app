@@ -6,7 +6,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export const DEFAULT_APP_NAME = "Grok App";
+export const DEFAULT_APP_NAME = "NBA Pulse";
 export const OG_SERVICE_URL_DEFAULT = "https://og.grok.me";
 export const OG_SITE_REL_PATH = "src/lib/og/site.json";
 
@@ -69,6 +69,7 @@ export function appNameFromHost(hostHeader) {
     return DEFAULT_APP_NAME;
   }
   const slug = host.split(".")[0] ?? "";
+  if (slug === "nba-pulse") return "NBA Pulse";
   if (!slug || slug === "www" || !/^[a-z0-9-]{1,63}$/.test(slug)) {
     return DEFAULT_APP_NAME;
   }
