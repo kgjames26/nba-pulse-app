@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">NBA Pulse — Victor Wembanyama</title>
+  <defs>
+    <clipPath id="frame"><rect width="512" height="512" rx="88"/></clipPath>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="52%" stop-color="#090a0c" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#090a0c" stop-opacity=".94"/>
+    </linearGradient>
+    <linearGradient id="pulse" x1="0" x2="1">
+      <stop stop-color="#f3f1ea"/><stop offset="1" stop-color="#e2b15a"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="512" height="512" fill="#090a0c"/>
+    <image href="/nba-pulse-intro.png" x="0" y="0" width="512" height="512" preserveAspectRatio="xMidYMid slice"/>
+    <rect width="512" height="512" fill="url(#shade)"/>
+    <path d="M0 370h82l26-34 30 58 31-88 34 75 28-37h281" fill="none" stroke="#e2b15a" stroke-opacity=".82" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="34" y="417" width="444" height="66" rx="18" fill="#090a0c" fill-opacity=".78" stroke="#fff" stroke-opacity=".12"/>
+    <text x="56" y="463" fill="url(#pulse)" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="800" letter-spacing="2">NBA PULSE</text>
+    <circle cx="444" cy="450" r="17" fill="#e2b15a"/>
+    <path d="M444 435v30M429 450h30M433 439c15 7 15 15 0 22M455 439c-15 7-15 15 0 22" fill="none" stroke="#090a0c" stroke-width="2.4"/>
+  </g>
+</svg>
