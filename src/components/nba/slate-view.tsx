@@ -189,7 +189,7 @@ function GameRow({
 function SideRow({ side, masked, hiddenLabel, onTeam }: { side: GameCard["home"]; masked: boolean; hiddenLabel: string; onTeam: () => void }) {
   return (
     <span className="flex items-center gap-3">
-      <TeamMark abbr={side.abbr} color={side.color} sources={[side.logo, side.logoAlt]} />
+      <button type="button" onClick={onTeam} className="rounded-lg text-start focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"><TeamMark abbr={side.abbr} color={side.color} sources={[side.logo, side.logoAlt]} /><span className="sr-only">{side.name}</span></button>
       <span className="min-w-0 flex-1">
         <span className="block font-display text-2xl leading-none">{side.abbr}</span>
         <span className="block truncate text-sm text-muted">{side.name}</span>
