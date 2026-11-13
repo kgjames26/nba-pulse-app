@@ -742,16 +742,30 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
     if (Array.isArray(group?.items)) return arr(group?.items);
     return [item];
   }).map(athleteFrom).filter((item): item is Record<string, unknown> => item != null);
-  const players = await Promise.all(athletes.map(async (athlete) => {
+  const seasonYear = currentNbaSeasonYear();
+  const leaderboard = obj(await espnWeb(`/apis/common/v3/sports/basketball/nba/statistics/byathlete?category=general&season=${seasonYear}&seasontype=2&limit=500&page=1`, 10 * 60_000).catch(() => null));
+  const leagueStats = new Map<string, NbaProfileStat[]>();
+  for (const entry of arr(leaderboard?.athletes)) {
+    const item = obj(entry);
+    const athleteInfo = obj(item?.athlete);
+    const athleteId = str(athleteInfo?.id);
+    if (!athleteId) continue;
+    const stats = arr(item?.statistics).flatMap((rawStat) => {
+      const stat = obj(rawStat);
+      const name = str(stat?.name);
+      const names: Record<string, string> = { gamesPlayed: "Games played", avgMinutes: "Minutes per game", avgPoints: "Points per game", avgRebounds: "Rebounds per game", avgAssists: "Assists per game", avgSteals: "Steals per game", avgBlocks: "Blocks per game", fieldGoalPct: "Field goal percentage", threePointFieldGoalPct: "Three point percentage", freeThrowPct: "Free throw percentage" };
+      const label = names[name] || str(stat?.displayName) || name;
+      const value = str(stat?.displayValue) || (num(stat?.value) != null ? String(stat?.value) : "");
+      return label && value ? [{ label, value }] : [];
+    });
+    leagueStats.set(athleteId, stats);
+  }
+  const players = athletes.map((athlete) => {
     const playerId = str(athlete.id);
-    let stats: NbaProfileStat[] = [];
-    if (playerId) {
-      try {
-        const root = await espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${playerId}/stats?season=${currentNbaSeasonYear()}&seasontype=2`, 20 * 60_000);
-        stats = statRows(root);
-      } catch { /* Roster details remain available if an athlete stats feed is unavailable. */ }
-    }
+    const stats = leagueStats.get(playerId) ?? [];
     const headshot = str(obj(athlete.headshot)?.href) || str(athlete.headshot);
+    const minutesPerGame = profileNumber(stats, "minutespergame");
+    const totalMinutes = profileNumber(stats, "gamesplayed") * minutesPerGame;
     return {
       id: playerId,
       name: str(athlete.displayName) || str(athlete.fullName),
@@ -763,11 +777,11 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
       experience: str(obj(athlete.experience)?.displayValue) || str(obj(athlete.experience)?.years),
       college: str(athlete.college),
       headshot,
-      minutesPerGame: profileNumber(stats, "minutespergame", "minpergame"),
-      totalMinutes: profileNumber(stats, "gamesplayed") * profileNumber(stats, "minutespergame", "minpergame"),
+      minutesPerGame,
+      totalMinutes,
       stats,
     } satisfies NbaProfilePlayer;
-  }));
+  });
   players.sort((a, b) => b.minutesPerGame - a.minutesPerGame || b.totalMinutes - a.totalMinutes || a.name.localeCompare(b.name));
   const record = str(obj(rosterRoot.record)?.items && arr(obj(rosterRoot.record)?.items).map((item) => str(obj(item)?.summary)).find(Boolean));
   return {
@@ -784,12 +798,15 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
 }
 
 export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
-  const [athleteRaw, statsRaw, logRaw] = await Promise.all([
+  const [athleteResult, statsResult, logResult] = await Promise.allSettled([
     espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}`, 60 * 60_000),
     espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/stats?season=${currentNbaSeasonYear()}&seasontype=2`, 20 * 60_000),
     espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/gamelog?season=${currentNbaSeasonYear()}`, 10 * 60_000),
   ]);
-  const athlete = obj(athleteRaw);
+  const athleteResponse = athleteResult.status === "fulfilled" ? obj(athleteResult.value) : null;
+  const athlete = obj(athleteResponse?.athlete) ?? athleteResponse;
+  const statsRaw = statsResult.status === "fulfilled" ? statsResult.value : null;
+  const logRaw = logResult.status === "fulfilled" ? logResult.value : null;
   if (!athlete) throw new Error("player unavailable");
   const stats = statRows(statsRaw);
   const log = obj(logRaw);
@@ -813,13 +830,15 @@ export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
   if (directEvents.length) {
     for (const rawEvent of directEvents) {
       const event = obj(rawEvent);
-      if (event) addGame(event, arr(event.stats), arr(log?.labels).map(str));
+      if (event) { const labels = arr(log?.labels).map(str); const values = arr(event.stats); const offset = values.length === labels.length - 3 && ["DATE", "OPP", "RESULT"].every((label, index) => labels[index] === label) ? 3 : 0; addGame(event, values, labels.slice(offset)); }
     }
   } else {
     const eventMap = obj(log?.events) ?? {};
     const labelsForGame = arr(log?.labels).map(str);
     const seasonTypes = arr(log?.seasonTypes);
-    const gameRows = seasonTypes.flatMap((seasonType) =>
+    const regularSeason = seasonTypes.filter((seasonType) => str(obj(seasonType)?.displayName).toLowerCase().includes("regular"));
+    const selectedTypes = regularSeason.length ? regularSeason : seasonTypes;
+    const gameRows = selectedTypes.flatMap((seasonType) =>
       arr(obj(seasonType)?.categories).flatMap((category) => arr(obj(category)?.events)),
     );
     for (const rawGame of gameRows) {
