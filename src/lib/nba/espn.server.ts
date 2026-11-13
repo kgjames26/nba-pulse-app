@@ -660,6 +660,11 @@ export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
 }
 
 
+function currentNbaSeasonYear(): number {
+  const now = new Date();
+  return now.getUTCMonth() >= 8 ? now.getUTCFullYear() + 1 : now.getUTCFullYear();
+}
+
 export type NbaProfileStat = { label: string; value: string };
 export type NbaProfilePlayer = {
   id: string; name: string; jersey: string; position: string; height: string;
@@ -742,7 +747,7 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
     let stats: NbaProfileStat[] = [];
     if (playerId) {
       try {
-        const root = await espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${playerId}/stats?season=2027&seasontype=2`, 20 * 60_000);
+        const root = await espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${playerId}/stats?season=${currentNbaSeasonYear()}&seasontype=2`, 20 * 60_000);
         stats = statRows(root);
       } catch { /* Roster details remain available if an athlete stats feed is unavailable. */ }
     }
@@ -781,8 +786,8 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
 export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
   const [athleteRaw, statsRaw, logRaw] = await Promise.all([
     espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}`, 60 * 60_000),
-    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/stats?season=2027&seasontype=2`, 20 * 60_000),
-    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/gamelog?season=2027`, 10 * 60_000),
+    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/stats?season=${currentNbaSeasonYear()}&seasontype=2`, 20 * 60_000),
+    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/gamelog?season=${currentNbaSeasonYear()}`, 10 * 60_000),
   ]);
   const athlete = obj(athleteRaw);
   if (!athlete) throw new Error("player unavailable");
