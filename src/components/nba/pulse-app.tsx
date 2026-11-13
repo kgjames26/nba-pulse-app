@@ -219,6 +219,7 @@ function Desk() {
         }}
         onCup={() => { setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
+        onTeam={setTeamId}
       />
       {playoffOpen && (
         <PlayoffView
