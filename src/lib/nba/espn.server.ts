@@ -797,17 +797,40 @@ export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
   const labels = arr(log?.labels).map(str);
   const seasonTypes = arr(log?.seasonTypes);
   const gameRows = seasonTypes.flatMap((seasonType) => arr(obj(seasonType)?.categories).flatMap((category) => arr(obj(category)?.events)));
-  const games = gameRows.flatMap((rawGame) => {
-    const row = obj(rawGame);
-    if (!row) return [];
-    const eventId = str(row.eventId);
-    const event = obj(eventMap[eventId]);
-    if (!event) return [];
-    const rawStats = arr(row.stats).map(str);
-    const stats = labels.map((label, index) => ({ label, value: rawStats[index] ?? "" })).filter((item) => item.value);
-    const opponent = str(obj(event.opponent)?.displayName) || str(obj(event.opponent)?.abbreviation);
-    return [{ date: str(event.gameDate) || str(event.date), opponent, result: str(event.gameResult), stats }];
-  }).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 40);
+  const games: NbaPlayerProfile["games"] = [];
+  const addGame = (event: Record<string, unknown>, rawStats: unknown[], labelsForGame: string[]) => {
+    const stats = labelsForGame.map((label, index) => ({ label, value: str(rawStats[index]) })).filter((item) => item.value);
+    games.push({
+      date: str(event.gameDate) || str(event.date),
+      opponent: str(obj(event.opponent)?.displayName) || str(obj(event.opponent)?.abbreviation) || str(event.opponent),
+      result: str(event.gameResult) || str(event.result),
+      stats,
+    });
+  };
+  // ESPN's v3 gamelog has two shapes in circulation: event metadata plus seasonTypes,
+  // or a flat events array containing the stats directly. Accept both.
+  const directEvents = arr(log?.events);
+  if (directEvents.length) {
+    for (const rawEvent of directEvents) {
+      const event = obj(rawEvent);
+      if (event) addGame(event, arr(event.stats), arr(log?.labels).map(str));
+    }
+  } else {
+    const eventMap = obj(log?.events) ?? {};
+    const labelsForGame = arr(log?.labels).map(str);
+    const seasonTypes = arr(log?.seasonTypes);
+    const gameRows = seasonTypes.flatMap((seasonType) =>
+      arr(obj(seasonType)?.categories).flatMap((category) => arr(obj(category)?.events)),
+    );
+    for (const rawGame of gameRows) {
+      const row = obj(rawGame);
+      if (!row) continue;
+      const event = obj(eventMap[str(row.eventId)]);
+      if (event) addGame(event, arr(row.stats), labelsForGame);
+    }
+  }
+  games.sort((a, b) => b.date.localeCompare(a.date));
+  const recentGames = games.slice(0, 40);
   return {
     player: {
       id,
@@ -820,6 +843,6 @@ export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
       headshot: str(obj(athlete.headshot)?.href) || str(athlete.headshot),
     },
     season: profileStatSelection(stats),
-    games,
+    games: recentGames,
   };
 }
