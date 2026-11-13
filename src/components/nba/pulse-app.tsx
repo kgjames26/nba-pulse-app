@@ -54,6 +54,8 @@ function Desk() {
   const favoriteIds = usePrefs((state) => state.favoriteIds);
   const spoilers = usePrefs((state) => state.spoilers);
   const lang = usePrefs((state) => state.lang);
+  const units = usePrefs((state) => state.units);
+  const setUnits = usePrefs((state) => state.setUnits);
   const revealedIds = usePrefs((state) => state.revealedIds);
   const standingsUnlockedOn = usePrefs((state) => state.standingsUnlockedOn);
   const complete = usePrefs((state) => state.complete);
@@ -284,15 +286,17 @@ function Desk() {
         onPlayoff={() => { setCupOpen(false); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
       />
-      {teamId && <TeamProfileView teamId={teamId} lang={lang} onClose={() => setTeamId(null)} />}
+      {teamId && <TeamProfileView teamId={teamId} lang={lang} units={units} onClose={() => setTeamId(null)} />}
       <SettingsView
         open={settingsOpen}
         lang={lang}
         spoilers={spoilers}
+        units={units}
         favoriteIds={favoriteIds}
         onClose={() => setSettingsOpen(false)}
         onLang={setLang}
         onSpoilers={setSpoilers}
+        onUnits={setUnits}
         onFavorites={(ids) => {
           setFavorites(ids);
           setSettingsOpen(false);
