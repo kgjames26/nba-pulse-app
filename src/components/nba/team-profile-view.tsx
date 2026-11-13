@@ -25,7 +25,7 @@ const COPY: Record<Lang, {
   zh: { roster: "球队名单", players: "名球员", player: "球员资料", season: "赛季", last: "最近", games: "场比赛", position: "位置", height: "身高", weight: "体重", age: "年龄", experience: "经验", college: "大学", minutes: "场均分钟", loading: "正在加载数据…", unavailable: "暂时无法获取数据。", noGames: "数据源未提供比赛记录。", back: "返回", view: "查看资料", regular: "常规赛" },
 };
 
-export function TeamProfileView({ teamId, lang, onClose }: { teamId: string; lang: Lang; onClose: () => void }) {
+export function TeamProfileView({ teamId, lang, units, onClose }: { teamId: string; lang: Lang; units: "metric" | "imperial"; onClose: () => void }) {
   const c = COPY[lang];
   const [playerId, setPlayerId] = useState<string | null>(null);
   const teamQuery = useQuery({ queryKey: ["team-profile", teamId], queryFn: () => getTeamProfile({ data: { id: teamId } }), staleTime: 15 * 60_000 });
@@ -65,7 +65,7 @@ export function TeamProfileView({ teamId, lang, onClose }: { teamId: string; lan
                   {player.headshot ? <img src={player.headshot} alt="" className="size-12 rounded-full bg-raised object-cover" /> : <span className="grid size-12 place-items-center rounded-full bg-raised font-display text-lg">{player.jersey || "—"}</span>}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{player.name}</span>
-                    <span className="block text-xs text-muted">{[player.position, player.jersey ? "#"+player.jersey : "", player.height, player.weight ? player.weight+" lb" : ""].filter(Boolean).join(" · ")}</span>
+                    <span className="block text-xs text-muted">{[player.position, player.jersey ? "#"+player.jersey : "", player.height, formatWeight(player.weight, units)].filter(Boolean).join(" · ")}</span>
                   </span>
                   <span className="text-end">
                     <span className="block font-display text-xl tabular-nums">{player.minutesPerGame ? player.minutesPerGame.toFixed(1) : "—"}</span>
@@ -77,13 +77,13 @@ export function TeamProfileView({ teamId, lang, onClose }: { teamId: string; lan
             </div>
           </>
         )}
-        {playerId && <PlayerDetail playerId={playerId} fallback={selected} lang={lang} />}
+        {playerId && <PlayerDetail playerId={playerId} fallback={selected} lang={lang} units={units} />}
       </div>
     </div>
   );
 }
 
-function PlayerDetail({ playerId, fallback, lang }: { playerId: string; fallback: Player | null; lang: Lang }) {
+function PlayerDetail({ playerId, fallback, lang, units }: { playerId: string; fallback: Player | null; lang: Lang; units: "metric" | "imperial" }) {
   const c = COPY[lang];
   const [count, setCount] = useState(3);
   const query = useQuery({ queryKey: ["player-profile", playerId], queryFn: () => getPlayerProfile({ data: { id: playerId } }), staleTime: 10 * 60_000 });
@@ -112,7 +112,7 @@ function PlayerDetail({ playerId, fallback, lang }: { playerId: string; fallback
             </div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[[c.height, player.height || fallback?.height], [c.weight, player.weight ? player.weight+" lb" : fallback?.weight], [c.age, player.age], [c.position, player.position || fallback?.position]].map(([label, value]) => (
+            {[[c.height, formatHeight(player.height || fallback?.height || "", units)], [c.weight, formatWeight(player.weight || fallback?.weight || "", units)], [c.age, player.age], [c.position, player.position || fallback?.position]].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-line bg-surface p-3"><p className="text-xs text-faint">{label}</p><p className="mt-1 font-medium">{value || "—"}</p></div>
             ))}
           </div>
@@ -143,4 +143,33 @@ function PlayerDetail({ playerId, fallback, lang }: { playerId: string; fallback
       )}
     </section>
   );
+}
+
+
+function formatHeight(raw: string, units: "metric" | "imperial"): string {
+  if (!raw) return "—";
+  const metric = raw.match(/(\\d+(?:\\.\\d+)?)\\s*cm/i);
+  if (units === "metric") {
+    if (metric) return Math.round(Number(metric[1])) + " cm";
+    const feetInches = raw.match(/(\\d+)\\s*['′]\\s*(\\d+)?/);
+    if (feetInches) return Math.round((Number(feetInches[1]) * 12 + Number(feetInches[2] || 0)) * 2.54) + " cm";
+    const inches = raw.match(/(\\d+(?:\\.\\d+)?)\\s*(?:in|\\")/i);
+    if (inches) return Math.round(Number(inches[1]) * 2.54) + " cm";
+    return raw;
+  }
+  if (metric) {
+    const totalInches = Number(metric[1]) / 2.54;
+    return Math.floor(totalInches / 12) + "′ " + Math.round(totalInches % 12) + "″";
+  }
+  return raw;
+}
+
+function formatWeight(raw: string, units: "metric" | "imperial"): string {
+  if (!raw) return "";
+  const match = raw.match(/(\\d+(?:\\.\\d+)?)/);
+  if (!match) return raw;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value)) return raw;
+  if (units === "metric") return (raw.toLowerCase().includes("kg") ? value : Math.round(value * 0.45359237 * 10) / 10) + " kg";
+  return (raw.toLowerCase().includes("kg") ? Math.round(value / 0.45359237) : value) + " lb";
 }
