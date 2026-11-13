@@ -7,10 +7,12 @@ type Prefs = {
   favoriteIds: string[];
   spoilers: boolean;
   lang: Lang;
+  units: "metric" | "imperial";
   revealedIds: string[];
   standingsUnlockedOn: string | null;
   complete: (input: { favoriteIds: string[]; spoilers: boolean; lang: Lang }) => void;
   setLang: (lang: Lang) => void;
+  setUnits: (units: "metric" | "imperial") => void;
   setSpoilers: (spoilers: boolean) => void;
   setFavorites: (ids: string[]) => void;
   reveal: (gameId: string) => void;
@@ -23,6 +25,7 @@ const empty = {
   favoriteIds: [] as string[],
   spoilers: false,
   lang: "fr" as Lang,
+  units: "metric" as const,
   revealedIds: [] as string[],
   standingsUnlockedOn: null as string | null,
 };
@@ -39,6 +42,7 @@ export const usePrefs = create<Prefs>()(
           lang: input.lang,
         }),
       setLang: (lang) => set({ lang }),
+      setUnits: (units) => set({ units }),
       setSpoilers: (spoilers) => set({ spoilers }),
       setFavorites: (ids) => set({ favoriteIds: ids.slice(0, 5) }),
       reveal: (gameId) =>
