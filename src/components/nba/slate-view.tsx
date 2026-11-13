@@ -26,6 +26,7 @@ export function SlateView({
   onShift,
   onRetry,
   onOpen,
+  onTeam,
   onStandings,
   onNews,
   onPlayoff,
@@ -43,6 +44,7 @@ export function SlateView({
   onShift: (delta: number) => void;
   onRetry: () => void;
   onOpen: (id: string) => void;
+  onTeam: (id: string) => void;
   onStandings: () => void;
   onNews: () => void;
   onPlayoff: () => void;
@@ -132,6 +134,7 @@ export function SlateView({
                 favorite={favoriteIds.includes(game.home.id) || favoriteIds.includes(game.away.id)}
                 show={showResultsFor(spoilers, revealedIds, game.id)}
                 onOpen={() => onOpen(game.id)}
+                onTeam={onTeam}
               />
             </li>
           ))}
@@ -148,6 +151,7 @@ function GameRow({
   favorite,
   show,
   onOpen,
+  onTeam,
 }: {
   game: GameCard;
   lang: Lang;
@@ -155,34 +159,34 @@ function GameRow({
   favorite: boolean;
   show: boolean;
   onOpen: () => void;
+  onTeam: (id: string) => void;
 }) {
   const view = presentGame(game, show);
   const national = game.nationalNames.slice(0, 2);
   const status = t(lang, statusKey(view.status, game.rawName));
   const period = livePeriod(game, lang);
   return (
-    <button
-      type="button"
-      onClick={onOpen}
+    <div
+      role="group"
       className={`w-full rounded-card border bg-surface p-4 text-start ${favorite ? "border-accent" : "border-line"}`}
     >
       <span className="sr-only">{t(lang, "openGame")}</span>
       <span dir="ltr" className="flex flex-col gap-3">
-        <SideRow side={view.away} masked={!show && (game.status === "in" || game.status === "post")} hiddenLabel={t(lang, "scoreHidden")} />
-        <SideRow side={view.home} masked={!show && (game.status === "in" || game.status === "post")} hiddenLabel={t(lang, "scoreHidden")} />
+        <SideRow side={view.away} masked={!show && (game.status === "in" || game.status === "post")} hiddenLabel={t(lang, "scoreHidden")} onTeam={() => onTeam(game.away.id)} />
+        <SideRow side={view.home} masked={!show && (game.status === "in" || game.status === "post")} hiddenLabel={t(lang, "scoreHidden")} onTeam={() => onTeam(game.home.id)} />
       </span>
-      <span className="mt-3 flex items-center gap-2 text-xs text-muted">
+      <button type="button" onClick={onOpen} className="mt-3 flex min-h-9 w-full items-center gap-2 text-start text-xs text-muted" aria-label={t(lang, "openGame")}>
         {favorite && <Star className="size-3.5 fill-current text-accent" aria-label={t(lang, "starLabel")} />}
         <span>{status}</span>
         {period && <span>{period}</span>}
         {view.status === "pre" && <span>{formatLocalTipWithDay(game.tipoff, locale)}</span>}
         {national.length > 0 && <span className="text-faint">{national.join(" · ")}</span>}
-      </span>
-    </button>
+      </button>
+    </div>
   );
 }
 
-function SideRow({ side, masked, hiddenLabel }: { side: GameCard["home"]; masked: boolean; hiddenLabel: string }) {
+function SideRow({ side, masked, hiddenLabel, onTeam }: { side: GameCard["home"]; masked: boolean; hiddenLabel: string; onTeam: () => void }) {
   return (
     <span className="flex items-center gap-3">
       <TeamMark abbr={side.abbr} color={side.color} sources={[side.logo, side.logoAlt]} />
