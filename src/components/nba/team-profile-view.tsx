@@ -134,7 +134,7 @@ function PlayerDetail({ playerId, fallback, lang, units }: { playerId: string; f
               <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-surface">
                 <table className="w-full min-w-[480px] text-sm">
                   <thead className="text-xs text-faint"><tr><th className="p-3 text-start">Date</th><th className="p-3 text-start">Opponent</th><th className="p-3 text-start">Result</th><th className="p-3 text-start">Stats</th></tr></thead>
-                  <tbody>{recent.map((game: { date: string; opponent: string; result: string; stats: Stat[] }, index: number) => <tr key={game.date+index} className="border-t border-line"><td className="p-3">{game.date || "—"}</td><td className="p-3">{game.opponent || "—"}</td><td className="p-3">{game.result || "—"}</td><td className="p-3">{game.stats.slice(0, 5).map((stat) => stat.value).join(" · ") || "—"}</td></tr>)}</tbody>
+                  <tbody>{recent.map((game: { date: string; opponent: string; result: string; stats: Stat[] }, index: number) => <tr key={game.date+index} className="border-t border-line"><td className="p-3">{game.date || "—"}</td><td className="p-3">{game.opponent || "—"}</td><td className="p-3">{game.result || "—"}</td><td className="p-3">{game.stats.filter((stat) => ["MIN", "PTS", "REB", "AST", "STL", "BLK"].includes(stat.label.toUpperCase())).map((stat) => stat.label.toUpperCase()+": "+stat.value).join(" · ") || "—"}</td></tr>)}</tbody>
                 </table>
               </div>
             </>
@@ -148,12 +148,12 @@ function PlayerDetail({ playerId, fallback, lang, units }: { playerId: string; f
 
 function formatHeight(raw: string, units: "metric" | "imperial"): string {
   if (!raw) return "—";
-  const metric = raw.match(/(\d+(?:\.\d+)?)\\s*cm/i);
+  const metric = raw.match(/(\d+(?:\.\d+)?)\s*cm/i);
   if (units === "metric") {
     if (metric) return Math.round(Number(metric[1])) + " cm";
-    const feetInches = raw.match(/(\d+)\\s*['′]\\s*(\d+)?/);
+    const feetInches = raw.match(/(\d+)\s*['′]\s*(\d+)?/);
     if (feetInches) return Math.round((Number(feetInches[1]) * 12 + Number(feetInches[2] || 0)) * 2.54) + " cm";
-    const inches = raw.match(/(\d+(?:\.\d+)?)\\s*(?:in|\\")/i);
+    const inches = raw.match(/(\d+(?:\.\d+)?)\s*(?:in|["])/i);
     if (inches) return Math.round(Number(inches[1]) * 2.54) + " cm";
     return raw;
   }
