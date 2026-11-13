@@ -636,3 +636,147 @@ export async function loadCupFeed(seasonYear: number): Promise<CupFeedGame[]> {
   }
   return [...result.values()].sort((a, b) => a.game.tipoff.localeCompare(b.game.tipoff));
 }
+
+
+export type NbaProfileStat = { label: string; value: string };
+export type NbaProfilePlayer = {
+  id: string; name: string; jersey: string; position: string; height: string;
+  weight: string; age: string; experience: string; college: string; headshot: string;
+  minutesPerGame: number; totalMinutes: number; stats: NbaProfileStat[];
+};
+export type NbaTeamProfile = {
+  team: { id: string; name: string; abbreviation: string; logo: string; location: string; record: string };
+  players: NbaProfilePlayer[];
+};
+export type NbaPlayerProfile = {
+  player: { id: string; name: string; position: string; team: string; height: string; weight: string; age: string; headshot: string };
+  season: NbaProfileStat[];
+  games: { date: string; opponent: string; result: string; stats: NbaProfileStat[] }[];
+};
+
+function statRows(root: unknown): NbaProfileStat[] {
+  const found: NbaProfileStat[] = [];
+  const walk = (value: unknown) => {
+    if (Array.isArray(value)) { value.forEach(walk); return; }
+    const row = obj(value);
+    if (!row) return;
+    const label = str(row.displayName) || str(row.abbreviation) || str(row.name);
+    const display = str(row.displayValue) || (num(row.value) != null ? String(row.value) : "");
+    if (label && display && !found.some((item) => item.label.toLowerCase() === label.toLowerCase())) {
+      found.push({ label, value: display });
+    }
+    Object.entries(row).forEach(([key, item]) => {
+      if (["athlete", "team", "logos", "headshot"].includes(key)) return;
+      if (Array.isArray(item)) walk(item);
+    });
+  };
+  walk(root);
+  return found;
+}
+
+function profileNumber(stats: NbaProfileStat[], ...keys: string[]): number {
+  const row = stats.find((item) => keys.some((key) => item.label.toLowerCase().replace(/[^a-z]/g, "").includes(key)));
+  if (!row) return 0;
+  const value = Number(row.value.replace(/,/g, ""));
+  return Number.isFinite(value) ? value : 0;
+}
+
+function athleteFrom(raw: unknown): Record<string, unknown> | null {
+  const row = obj(raw);
+  if (!row) return null;
+  return obj(row.athlete) ?? row;
+}
+
+function profileStatSelection(stats: NbaProfileStat[]): NbaProfileStat[] {
+  const wanted = ["games played", "minutes per game", "points per game", "rebounds per game", "assists per game", "steals per game", "blocks per game", "field goal percentage", "three point percentage", "free throw percentage"];
+  return wanted.flatMap((key) => {
+    const item = stats.find((stat) => stat.label.toLowerCase() === key || stat.label.toLowerCase().replace(/[^a-z]/g, "") === key.replace(/[^a-z]/g, ""));
+    return item ? [item] : [];
+  });
+}
+
+export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
+  const rosterRoot = obj(await espn(`/apis/site/v2/sports/basketball/nba/teams/${id}/roster`, 15 * 60_000));
+  if (!rosterRoot) throw new Error("roster unavailable");
+  const team = obj(rosterRoot.team);
+  const athletes = arr(rosterRoot.athletes).flatMap((item) => {
+    const group = obj(item);
+    if (Array.isArray(group?.items)) return arr(group?.items);
+    return [item];
+  }).map(athleteFrom).filter((item): item is Record<string, unknown> => item != null);
+  const players = await Promise.all(athletes.map(async (athlete) => {
+    const playerId = str(athlete.id);
+    let stats: NbaProfileStat[] = [];
+    if (playerId) {
+      try {
+        const root = await espn(`/apis/site/v2/sports/basketball/nba/athletes/${playerId}/statistics`, 20 * 60_000);
+        stats = statRows(root);
+      } catch { /* Roster details remain available if an athlete stats feed is unavailable. */ }
+    }
+    const headshot = str(obj(athlete.headshot)?.href) || str(athlete.headshot);
+    return {
+      id: playerId,
+      name: str(athlete.displayName) || str(athlete.fullName),
+      jersey: str(athlete.jersey),
+      position: str(obj(athlete.position)?.abbreviation) || str(obj(athlete.position)?.displayName),
+      height: str(athlete.displayHeight),
+      weight: str(athlete.displayWeight),
+      age: num(athlete.age) != null ? String(athlete.age) : "",
+      experience: str(obj(athlete.experience)?.displayValue) || str(obj(athlete.experience)?.years),
+      college: str(athlete.college),
+      headshot,
+      minutesPerGame: profileNumber(stats, "minutespergame", "minpergame"),
+      totalMinutes: profileNumber(stats, "minutes", "totalminutes"),
+      stats,
+    } satisfies NbaProfilePlayer;
+  }));
+  players.sort((a, b) => b.minutesPerGame - a.minutesPerGame || b.totalMinutes - a.totalMinutes || a.name.localeCompare(b.name));
+  const record = str(obj(rosterRoot.record)?.items && arr(obj(rosterRoot.record)?.items).map((item) => str(obj(item)?.summary)).find(Boolean));
+  return {
+    team: {
+      id,
+      name: str(team?.displayName) || str(rosterRoot.displayName),
+      abbreviation: str(team?.abbreviation),
+      logo: str(team?.logos && arr(team?.logos).map((item) => str(obj(item)?.href)).find(Boolean)) || str(team?.logo),
+      location: str(team?.location),
+      record,
+    },
+    players,
+  };
+}
+
+export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
+  const [athleteRaw, statsRaw, logRaw] = await Promise.all([
+    espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}`, 60 * 60_000),
+    espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}/statistics`, 20 * 60_000),
+    espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}/gamelog`, 10 * 60_000),
+  ]);
+  const athlete = obj(athleteRaw);
+  if (!athlete) throw new Error("player unavailable");
+  const stats = statRows(statsRaw);
+  const log = obj(logRaw);
+  const events = arr(log?.events ?? obj(log?.seasonTypes)?.categories);
+  const games = events.flatMap((event) => {
+    const row = obj(event);
+    if (!row) return [];
+    const opponent = str(row.opponent) || str(obj(row.opponent)?.displayName) || str(obj(row.competitor)?.displayName);
+    const date = str(row.gameDate) || str(row.date);
+    const result = str(row.result) || str(row.gameResult);
+    const gameStats = statRows(row.stats ?? row.statistics);
+    return [{ date, opponent, result, stats: gameStats.slice(0, 12) }];
+  }).filter((game) => game.date || game.stats.length).slice(0, 40);
+  return {
+    player: {
+      id,
+      name: str(athlete.displayName) || str(athlete.fullName),
+      position: str(obj(athlete.position)?.displayName) || str(obj(athlete.position)?.abbreviation),
+      team: str(obj(athlete.team)?.displayName),
+      height: str(athlete.displayHeight),
+      weight: str(athlete.displayWeight),
+      age: num(athlete.age) != null ? String(athlete.age) : "",
+      headshot: str(obj(athlete.headshot)?.href) || str(athlete.headshot),
+    },
+    season: profileStatSelection(stats),
+    games,
+  };
+}
