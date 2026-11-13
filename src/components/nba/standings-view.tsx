@@ -135,7 +135,7 @@ function Row({ row, index, lang, favorite, inPlayIn, onTeam }: { row: StandingRo
           {t(lang, "wins")}–{row.losses}
           {t(lang, "losses")} · {row.pct} · {t(lang, "gb")} {row.gb || "—"} · {streak}
         </span>
-      </span>
+      </span></button>
     </li>
   );
 }
