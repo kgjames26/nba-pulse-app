@@ -60,6 +60,28 @@ async function espn(path: string, ttlMs: number): Promise<unknown> {
   }
 }
 
+
+
+async function espnWeb(path: string, ttlMs: number): Promise<unknown> {
+  const key = "web:" + path;
+  const hit = memory.get(key);
+  if (hit && hit.exp > Date.now()) return hit.body;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12_000);
+  try {
+    const res = await fetch("https://site.web.api.espn.com" + path, {
+      headers: { accept: "application/json", "user-agent": "NBAPulse/1.0" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error("web feed " + res.status);
+    const body: unknown = await res.json();
+    memory.set(key, { exp: Date.now() + ttlMs, body });
+    return body;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function mapStatus(name: string, state: string): GameStatus {
   const n = name.toUpperCase();
   if (n.includes("POSTPON")) return "postponed";
@@ -656,6 +678,16 @@ export type NbaPlayerProfile = {
 
 function statRows(root: unknown): NbaProfileStat[] {
   const found: NbaProfileStat[] = [];
+  const rootRow = obj(root);
+  for (const category of arr(rootRow?.categories)) {
+    const group = obj(category);
+    const labels = arr(group?.labels).map(str);
+    const totals = arr(group?.totals).map(str);
+    labels.forEach((label, index) => {
+      const names: Record<string, string> = { GP: "Games played", GS: "Games started", MIN: "Minutes per game", PTS: "Points per game", REB: "Rebounds per game", AST: "Assists per game", STL: "Steals per game", BLK: "Blocks per game", TO: "Turnovers per game", "FG%": "Field goal percentage", "3P%": "Three point percentage", "FT%": "Free throw percentage" };
+      if (label && totals[index] != null) found.push({ label: names[label] || label, value: totals[index]! });
+    });
+  }
   const walk = (value: unknown) => {
     if (Array.isArray(value)) { value.forEach(walk); return; }
     const row = obj(value);
@@ -709,7 +741,7 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
     let stats: NbaProfileStat[] = [];
     if (playerId) {
       try {
-        const root = await espn(`/apis/site/v2/sports/basketball/nba/athletes/${playerId}/statistics`, 20 * 60_000);
+        const root = await espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${playerId}/stats?season=2027&seasontype=2`, 20 * 60_000);
         stats = statRows(root);
       } catch { /* Roster details remain available if an athlete stats feed is unavailable. */ }
     }
@@ -726,7 +758,7 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
       college: str(athlete.college),
       headshot,
       minutesPerGame: profileNumber(stats, "minutespergame", "minpergame"),
-      totalMinutes: profileNumber(stats, "minutes", "totalminutes"),
+      totalMinutes: profileNumber(stats, "gamesplayed") * profileNumber(stats, "minutespergame", "minpergame"),
       stats,
     } satisfies NbaProfilePlayer;
   }));
@@ -748,23 +780,28 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
 export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
   const [athleteRaw, statsRaw, logRaw] = await Promise.all([
     espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}`, 60 * 60_000),
-    espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}/statistics`, 20 * 60_000),
-    espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}/gamelog`, 10 * 60_000),
+    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/stats?season=2027&seasontype=2`, 20 * 60_000),
+    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/gamelog?season=2027`, 10 * 60_000),
   ]);
   const athlete = obj(athleteRaw);
   if (!athlete) throw new Error("player unavailable");
   const stats = statRows(statsRaw);
   const log = obj(logRaw);
-  const events = arr(log?.events ?? obj(log?.seasonTypes)?.categories);
-  const games = events.flatMap((event) => {
-    const row = obj(event);
+  const eventMap = obj(log?.events) ?? {};
+  const labels = arr(log?.labels).map(str);
+  const seasonTypes = arr(log?.seasonTypes);
+  const gameRows = seasonTypes.flatMap((seasonType) => arr(obj(seasonType)?.categories).flatMap((category) => arr(obj(category)?.events)));
+  const games = gameRows.flatMap((rawGame) => {
+    const row = obj(rawGame);
     if (!row) return [];
-    const opponent = str(row.opponent) || str(obj(row.opponent)?.displayName) || str(obj(row.competitor)?.displayName);
-    const date = str(row.gameDate) || str(row.date);
-    const result = str(row.result) || str(row.gameResult);
-    const gameStats = statRows(row.stats ?? row.statistics);
-    return [{ date, opponent, result, stats: gameStats.slice(0, 12) }];
-  }).filter((game) => game.date || game.stats.length).slice(0, 40);
+    const eventId = str(row.eventId);
+    const event = obj(eventMap[eventId]);
+    if (!event) return [];
+    const rawStats = arr(row.stats).map(str);
+    const stats = labels.map((label, index) => ({ label, value: rawStats[index] ?? "" })).filter((item) => item.value);
+    const opponent = str(obj(event.opponent)?.displayName) || str(obj(event.opponent)?.abbreviation);
+    return [{ date: str(event.gameDate) || str(event.date), opponent, result: str(event.gameResult), stats }];
+  }).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 40);
   return {
     player: {
       id,
