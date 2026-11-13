@@ -65,7 +65,7 @@ export function TeamProfileView({ teamId, lang, units, onClose }: { teamId: stri
                   {player.headshot ? <img src={player.headshot} alt="" className="size-12 rounded-full bg-raised object-cover" /> : <span className="grid size-12 place-items-center rounded-full bg-raised font-display text-lg">{player.jersey || "—"}</span>}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{player.name}</span>
-                    <span className="block text-xs text-muted">{[player.position, player.jersey ? "#"+player.jersey : "", player.height, formatWeight(player.weight, units)].filter(Boolean).join(" · ")}</span>
+                    <span className="block text-xs text-muted">{[player.position, player.jersey ? "#"+player.jersey : "", formatHeight(player.height, units), formatWeight(player.weight, units)].filter(Boolean).join(" · ")}</span>
                   </span>
                   <span className="text-end">
                     <span className="block font-display text-xl tabular-nums">{player.minutesPerGame ? player.minutesPerGame.toFixed(1) : "—"}</span>
@@ -148,12 +148,12 @@ function PlayerDetail({ playerId, fallback, lang, units }: { playerId: string; f
 
 function formatHeight(raw: string, units: "metric" | "imperial"): string {
   if (!raw) return "—";
-  const metric = raw.match(/(\\d+(?:\\.\\d+)?)\\s*cm/i);
+  const metric = raw.match(/(\d+(?:\.\d+)?)\\s*cm/i);
   if (units === "metric") {
     if (metric) return Math.round(Number(metric[1])) + " cm";
-    const feetInches = raw.match(/(\\d+)\\s*['′]\\s*(\\d+)?/);
+    const feetInches = raw.match(/(\d+)\\s*['′]\\s*(\d+)?/);
     if (feetInches) return Math.round((Number(feetInches[1]) * 12 + Number(feetInches[2] || 0)) * 2.54) + " cm";
-    const inches = raw.match(/(\\d+(?:\\.\\d+)?)\\s*(?:in|\\")/i);
+    const inches = raw.match(/(\d+(?:\.\d+)?)\\s*(?:in|\\")/i);
     if (inches) return Math.round(Number(inches[1]) * 2.54) + " cm";
     return raw;
   }
@@ -166,7 +166,7 @@ function formatHeight(raw: string, units: "metric" | "imperial"): string {
 
 function formatWeight(raw: string, units: "metric" | "imperial"): string {
   if (!raw) return "";
-  const match = raw.match(/(\\d+(?:\\.\\d+)?)/);
+  const match = raw.match(/(\d+(?:\.\d+)?)/);
   if (!match) return raw;
   const value = Number(match[1]);
   if (!Number.isFinite(value)) return raw;
