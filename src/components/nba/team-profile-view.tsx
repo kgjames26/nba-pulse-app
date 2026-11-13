@@ -129,7 +129,7 @@ function PlayerDetail({ playerId, fallback, lang }: { playerId: string; fallback
           {recent.length === 0 ? <p className="mt-3 rounded-xl border border-line p-4 text-sm text-muted">{c.noGames}</p> : (
             <>
               <div className="mt-3 grid grid-cols-3 gap-2">
-                {[["PTS", "points"], ["REB", "rebounds"], ["AST", "assists"]].map(([label, key]) => <div key={label} className="rounded-xl border border-line bg-surface p-3"><p className="text-xs text-faint">{label} · AVG</p><p className="font-display text-2xl">{average(key)}</p></div>)}
+                {[["PTS", "pts"], ["REB", "reb"], ["AST", "ast"]].map(([label, key]) => <div key={label} className="rounded-xl border border-line bg-surface p-3"><p className="text-xs text-faint">{label} · AVG</p><p className="font-display text-2xl">{average(key)}</p></div>)}
               </div>
               <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-surface">
                 <table className="w-full min-w-[480px] text-sm">
