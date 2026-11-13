@@ -27,6 +27,7 @@ export function StandingsView({
   onPlayoff,
   onCup,
   onSettings,
+  onTeam,
 }: {
   lang: Lang;
   open: boolean;
@@ -38,6 +39,7 @@ export function StandingsView({
   onPlayoff: () => void;
   onCup: () => void;
   onSettings: () => void;
+  onTeam: (id: string) => void;
 }) {
   const [side, setSide] = useState<"east" | "west">("east");
   const query = useQuery({
@@ -109,7 +111,7 @@ export function StandingsView({
                       <span className="h-px flex-1 bg-line" />
                     </li>
                   )}
-                  <Row row={row} index={index} lang={lang} favorite={favoriteIds.includes(row.id)} inPlayIn={index >= 6 && index <= 9} />
+                  <Row row={row} index={index} lang={lang} favorite={favoriteIds.includes(row.id)} inPlayIn={index >= 6 && index <= 9} onTeam={() => onTeam(row.id)} />
                 </Fragment>
               ))}
             </ol>
@@ -120,12 +122,12 @@ export function StandingsView({
   );
 }
 
-function Row({ row, index, lang, favorite, inPlayIn }: { row: StandingRow; index: number; lang: Lang; favorite: boolean; inPlayIn: boolean }) {
+function Row({ row, index, lang, favorite, inPlayIn, onTeam }: { row: StandingRow; index: number; lang: Lang; favorite: boolean; inPlayIn: boolean; onTeam: () => void }) {
   const streak = localStreak(row.streak, lang);
   return (
     <li className={`flex items-center gap-3 rounded-card border px-3 py-3 ${inPlayIn ? "border-s-2 border-s-accent bg-raised" : favorite ? "border-accent bg-raised" : "border-line bg-surface"}`}>
       <span className="w-6 font-display text-xl text-faint">{index + 1}</span>
-      <TeamMark abbr={row.abbr} color={UNKNOWN_COLOR} sources={[row.logo]} />
+      <button type="button" onClick={onTeam} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-start focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"><TeamMark abbr={row.abbr} color={UNKNOWN_COLOR} sources={[row.logo]} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm">{row.name}</span>
         <span className="block text-xs text-faint">
