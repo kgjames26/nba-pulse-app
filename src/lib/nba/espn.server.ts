@@ -731,6 +731,7 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
   const rosterRoot = obj(await espn(`/apis/site/v2/sports/basketball/nba/teams/${id}/roster`, 15 * 60_000));
   if (!rosterRoot) throw new Error("roster unavailable");
   const team = obj(rosterRoot.team);
+  const franchise = franchiseById(id);
   const athletes = arr(rosterRoot.athletes).flatMap((item) => {
     const group = obj(item);
     if (Array.isArray(group?.items)) return arr(group?.items);
@@ -767,10 +768,10 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
   return {
     team: {
       id,
-      name: str(team?.displayName) || str(rosterRoot.displayName),
-      abbreviation: str(team?.abbreviation),
-      logo: str(team?.logos && arr(team?.logos).map((item) => str(obj(item)?.href)).find(Boolean)) || str(team?.logo),
-      location: str(team?.location),
+      name: str(team?.displayName) || franchise?.name || str(rosterRoot.displayName),
+      abbreviation: str(team?.abbreviation) || franchise?.abbr || "",
+      logo: str(team?.logos && arr(team?.logos).map((item) => str(obj(item)?.href)).find(Boolean)) || str(team?.logo) || (franchise ? darkLogo(franchise.slug) : ""),
+      location: str(team?.location) || franchise?.city || "",
       record,
     },
     players,
