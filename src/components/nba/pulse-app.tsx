@@ -176,7 +176,6 @@ function Desk() {
         }}
         onCup={() => { setGameId(null); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
-        onTeam={setTeamId}
       />
       <div className={gameId ? "fixed inset-0 z-20 col-span-2 overflow-y-auto bg-bg lg:static lg:z-auto" : "col-span-2 hidden lg:block"}>
         {gameId ? (
