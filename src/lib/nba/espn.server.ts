@@ -798,13 +798,17 @@ export async function loadTeamProfile(id: string): Promise<NbaTeamProfile> {
 }
 
 export async function loadPlayerProfile(id: string): Promise<NbaPlayerProfile> {
-  const [athleteResult, statsResult, logResult] = await Promise.allSettled([
+  const [athleteResult, overviewResult, statsResult, logResult] = await Promise.allSettled([
     espn(`/apis/site/v2/sports/basketball/nba/athletes/${id}`, 60 * 60_000),
+    espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/overview`, 30 * 60_000),
     espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/stats?season=${currentNbaSeasonYear()}&seasontype=2`, 20 * 60_000),
     espnWeb(`/apis/common/v3/sports/basketball/nba/athletes/${id}/gamelog?season=${currentNbaSeasonYear()}`, 10 * 60_000),
   ]);
   const athleteResponse = athleteResult.status === "fulfilled" ? obj(athleteResult.value) : null;
-  const athlete = obj(athleteResponse?.athlete) ?? athleteResponse;
+  const siteAthlete = obj(athleteResponse?.athlete) ?? athleteResponse;
+  const overviewResponse = overviewResult.status === "fulfilled" ? obj(overviewResult.value) : null;
+  const overviewAthlete = obj(overviewResponse?.athlete) ?? overviewResponse;
+  const athlete = siteAthlete?.displayName ? siteAthlete : overviewAthlete;
   const statsRaw = statsResult.status === "fulfilled" ? statsResult.value : null;
   const logRaw = logResult.status === "fulfilled" ? logResult.value : null;
   if (!athlete) throw new Error("player unavailable");
