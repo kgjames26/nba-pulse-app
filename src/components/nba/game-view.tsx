@@ -17,6 +17,7 @@ export function GameView({
   onBack,
   onReveal,
   onSettings,
+  onTeam,
 }: {
   id: string;
   lang: Lang;
@@ -24,6 +25,7 @@ export function GameView({
   onBack: () => void;
   onReveal: () => void;
   onSettings: () => void;
+  onTeam: (id: string) => void;
 }) {
   const locale = localeFor(lang);
   const query = useQuery({
@@ -73,6 +75,7 @@ export function GameView({
               show={show}
               lang={lang}
               locale={locale}
+              onTeam={onTeam}
             />
             {hidden && (
               <div className="mt-4">
@@ -113,33 +116,34 @@ function Result({
   show,
   lang,
   locale,
+  onTeam,
 }: {
   game: GameCard;
   show: boolean;
   lang: Lang;
   locale: string;
+  onTeam: (id: string) => void;
 }) {
   const view = presentGame(game, show);
   return (
     <section className="rounded-card border border-line bg-surface p-4">
       <p className="text-xs uppercase tracking-widest text-accent">{t(lang, statusKey(game.status, game.rawName))}</p>
       <div dir="ltr" className="mt-4 flex flex-col gap-4">
-        <ScoreRow side={view.away} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} />
-        <ScoreRow side={view.home} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} />
+        <ScoreRow side={view.away} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} onTeam={() => onTeam(game.away.id)} />
+        <ScoreRow side={view.home} masked={resultsAreHidden(game.status, show)} hiddenLabel={t(lang, "scoreHidden")} onTeam={() => onTeam(game.home.id)} />
       </div>
       <p className="mt-4 text-sm text-muted">{formatTip(game.tipoff, locale)}</p>
     </section>
   );
 }
 
-function ScoreRow({ side, masked, hiddenLabel }: { side: GameCard["home"]; masked: boolean; hiddenLabel: string }) {
+function ScoreRow({ side, masked, hiddenLabel, onTeam }: { side: GameCard["home"]; masked: boolean; hiddenLabel: string; onTeam: () => void }) {
   return (
     <div className="flex items-center gap-3">
-      <TeamMark abbr={side.abbr} color={side.color} sources={[side.logo, side.logoAlt]} />
-      <div className="min-w-0 flex-1">
-        <p className="font-display text-3xl leading-none">{side.abbr}</p>
-        <p className="truncate text-sm text-muted">{side.name}</p>
-      </div>
+      <button type="button" onClick={onTeam} className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-start focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+        <TeamMark abbr={side.abbr} color={side.color} sources={[side.logo, side.logoAlt]} />
+        <span className="min-w-0 flex-1"><span className="block font-display text-3xl leading-none">{side.abbr}</span><span className="block truncate text-sm text-muted">{side.name}</span></span>
+      </button>
       {side.score != null ? (
         <p className={`font-display text-5xl tabular-nums leading-none ${side.winner ? "text-fg" : "text-muted"}`}>{side.score}</p>
       ) : masked ? (
