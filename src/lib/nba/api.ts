@@ -114,3 +114,32 @@ export const getCup = createServerFn({ method: "POST" })
       return { ok: false, error: "feed" };
     }
   });
+
+
+export const getTeamProfile = createServerFn({ method: "POST" })
+  .validator((input: { id: string }) => {
+    if (!input || !/^\\d{1,8}$/.test(input.id)) throw new Error("bad team id");
+    return { id: input.id };
+  })
+  .handler(async ({ data }) => {
+    try {
+      const { loadTeamProfile } = await import("./espn.server.ts");
+      return { ok: true as const, profile: await loadTeamProfile(data.id) };
+    } catch {
+      return { ok: false as const, error: "feed" as const };
+    }
+  });
+
+export const getPlayerProfile = createServerFn({ method: "POST" })
+  .validator((input: { id: string }) => {
+    if (!input || !/^\\d{1,12}$/.test(input.id)) throw new Error("bad player id");
+    return { id: input.id };
+  })
+  .handler(async ({ data }) => {
+    try {
+      const { loadPlayerProfile } = await import("./espn.server.ts");
+      return { ok: true as const, profile: await loadPlayerProfile(data.id) };
+    } catch {
+      return { ok: false as const, error: "feed" as const };
+    }
+  });
