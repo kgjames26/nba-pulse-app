@@ -16,6 +16,7 @@ import { NewsView } from "./news-view";
 import { PlayoffView } from "./playoff-view";
 import { CupView } from "./cup-view";
 import { Wordmark } from "./ui";
+import { TeamProfileView } from "./team-profile-view";
 
 export function PulseApp() {
   const hydrated = useSyncExternalStore(
@@ -67,6 +68,7 @@ function Desk() {
   const anchor = referenceSlate(now);
   const [offset, setOffset] = useState(0);
   const [gameId, setGameId] = useState<string | null>(null);
+  const [teamId, setTeamId] = useState<string | null>(null);
   const [standingsOpen, setStandingsOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
   const [playoffOpen, setPlayoffOpen] = useState(false);
@@ -84,13 +86,13 @@ function Desk() {
     function onKey(event: KeyboardEvent) {
       const target = event.target;
       if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
-      if (!onboarded || standingsOpen || newsOpen || playoffOpen || cupOpen || settingsOpen) return;
+      if (!onboarded || standingsOpen || newsOpen || playoffOpen || cupOpen || settingsOpen || teamId) return;
       if (event.key === "ArrowLeft") setOffset((value) => Math.max(-220, value - 1));
       if (event.key === "ArrowRight") setOffset((value) => Math.min(45, value + 1));
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onboarded, standingsOpen, newsOpen, playoffOpen, cupOpen, settingsOpen]);
+  }, [onboarded, standingsOpen, newsOpen, playoffOpen, cupOpen, settingsOpen, teamId]);
 
   const query = useQuery({
     queryKey: ["slate", date],
@@ -154,6 +156,7 @@ function Desk() {
         }}
         onRetry={() => void query.refetch()}
         onOpen={setGameId}
+        onTeam={setTeamId}
         onStandings={() => {
           setCupOpen(false);
           setNewsOpen(false);
@@ -173,6 +176,7 @@ function Desk() {
         }}
         onCup={() => { setGameId(null); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(false); setCupOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
+        onTeam={setTeamId}
       />
       <div className={gameId ? "fixed inset-0 z-20 col-span-2 overflow-y-auto bg-bg lg:static lg:z-auto" : "col-span-2 hidden lg:block"}>
         {gameId ? (
@@ -183,6 +187,7 @@ function Desk() {
             onBack={() => setGameId(null)}
             onReveal={() => reveal(gameId)}
             onSettings={() => setSettingsOpen(true)}
+            onTeam={setTeamId}
           />
         ) : (
           <div className="hidden min-h-screen place-items-center px-8 lg:grid">
@@ -279,6 +284,7 @@ function Desk() {
         onPlayoff={() => { setCupOpen(false); setStandingsOpen(false); setNewsOpen(false); setPlayoffOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
       />
+      {teamId && <TeamProfileView teamId={teamId} lang={lang} onClose={() => setTeamId(null)} />}
       <SettingsView
         open={settingsOpen}
         lang={lang}
