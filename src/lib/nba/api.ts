@@ -118,7 +118,7 @@ export const getCup = createServerFn({ method: "POST" })
 
 export const getTeamProfile = createServerFn({ method: "POST" })
   .validator((input: { id: string }) => {
-    if (!input || !/^\\d{1,8}$/.test(input.id)) throw new Error("bad team id");
+    if (!input || !/^\d{1,8}$/.test(input.id)) throw new Error("bad team id");
     return { id: input.id };
   })
   .handler(async ({ data }) => {
@@ -132,7 +132,7 @@ export const getTeamProfile = createServerFn({ method: "POST" })
 
 export const getPlayerProfile = createServerFn({ method: "POST" })
   .validator((input: { id: string }) => {
-    if (!input || !/^\\d{1,12}$/.test(input.id)) throw new Error("bad player id");
+    if (!input || !/^\d{1,12}$/.test(input.id)) throw new Error("bad player id");
     return { id: input.id };
   })
   .handler(async ({ data }) => {
