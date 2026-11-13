@@ -6,20 +6,24 @@ export function SettingsView({
   open,
   lang,
   spoilers,
+  units,
   favoriteIds,
   onClose,
   onLang,
   onSpoilers,
+  onUnits,
   onFavorites,
   onReset,
 }: {
   open: boolean;
   lang: Lang;
   spoilers: boolean;
+  units: "metric" | "imperial";
   favoriteIds: string[];
   onClose: () => void;
   onLang: (lang: Lang) => void;
   onSpoilers: (value: boolean) => void;
+  onUnits: (value: "metric" | "imperial") => void;
   onFavorites: (ids: string[]) => void;
   onReset: () => void;
 }) {
@@ -62,6 +66,19 @@ export function SettingsView({
                 {item.native}
               </button>
             ))}
+          </div>
+        </section>
+        <section className="mt-8">
+          <h3 className="font-display text-2xl">{lang === "fr" ? "Unités de mesure" : lang === "es" ? "Unidades de medida" : lang === "tr" ? "Ölçü birimleri" : lang === "ar" ? "وحدات القياس" : lang === "zh" ? "计量单位" : "Measurement units"}</h3>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button type="button" aria-pressed={units === "metric"} onClick={() => onUnits("metric")} className={`min-h-12 rounded-card border px-3 text-start ${units === "metric" ? "border-accent bg-raised" : "border-line"}`}>
+              <span className="block font-medium">{lang === "fr" ? "Métrique" : lang === "es" ? "Métrico" : lang === "tr" ? "Metrik" : lang === "ar" ? "متري" : lang === "zh" ? "公制" : "Metric"}</span>
+              <span className="mt-1 block text-xs text-muted">cm · kg</span>
+            </button>
+            <button type="button" aria-pressed={units === "imperial"} onClick={() => onUnits("imperial")} className={`min-h-12 rounded-card border px-3 text-start ${units === "imperial" ? "border-accent bg-raised" : "border-line"}`}>
+              <span className="block font-medium">{lang === "fr" ? "Impérial" : lang === "es" ? "Imperial" : lang === "tr" ? "İngiliz" : lang === "ar" ? "إمبراطوري" : lang === "zh" ? "英制" : "Imperial"}</span>
+              <span className="mt-1 block text-xs text-muted">ft/in · lb</span>
+            </button>
           </div>
         </section>
         <section className="mt-8">
